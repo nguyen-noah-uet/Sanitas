@@ -1,0 +1,10 @@
+<resources>
+    <string name="app_name">Sanitas</string>
+    <string name="title_home">Home</string>
+    <string name="title_dashboard">Dashboard</string>
+    <string name="title_notifications">Thông báo</string>
+    <string name="title_settings">Cài đặt</string>
+    <string name="title_positioning">Vị trí</string>
+    <string name="title_heartmonitor">Đo nhịp tim</string>
+    <string name="title_profile">Hồ sơ</string>
+</resources>

@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/mobile_navigation"
+    app:startDestination="@id/navigation_login">
+
+    <fragment
+        android:id="@+id/navigation_dashboard"
+        android:name="com.example.sanitas.ui.dashboard.DashboardFragment"
+        android:label="@string/title_dashboard"
+        tools:layout="@layout/fragment_dashboard" />
+
+    <fragment
+        android:id="@+id/navigation_notifications"
+        android:name="com.example.sanitas.ui.notifications.NotificationsFragment"
+        android:label="@string/title_notifications"
+        tools:layout="@layout/fragment_notifications" />
+    <fragment
+        android:id="@+id/navigation_settings"
+        android:name="com.example.sanitas.ui.settings.SettingsFragment"
+        android:label="@string/title_settings"
+        tools:layout="@layout/fragment_settings" />
+    <fragment
+        android:id="@+id/navigation_login"
+        android:name="com.example.sanitas.ui.login.LoginFragment"
+        android:label="fragment_login"
+        tools:layout="@layout/fragment_login">
+        <deepLink app:uri="com.example.sanitas.ui.login.LoginFragment"
+            app:action="home_to_login"/>
+        <action
+            android:id="@+id/action_navigation_login_to_navigation_register"
+            app:destination="@id/navigation_register" />
+        <action
+            android:id="@+id/action_navigation_login_to_navigation_dashboard"
+            app:destination="@id/navigation_dashboard" />
+    </fragment>
+    <fragment
+        android:id="@+id/navigation_register"
+        android:name="com.example.sanitas.ui.register.RegisterFragment"
+        android:label="fragment_register"
+        tools:layout="@layout/fragment_register" >
+        <action
+            android:id="@+id/action_navigation_register_to_navigation_login"
+            app:destination="@id/navigation_login" />
+    </fragment>
+    <fragment
+        android:id="@+id/navigation_positioning"
+        android:name="com.example.sanitas.ui.positioning.PositioningFragment"
+        android:label="fragment_positioning"
+        tools:layout="@layout/fragment_positioning" />
+    <fragment
+        android:id="@+id/navigation_heartmonitor"
+        android:name="com.example.sanitas.ui.heartmonitor.HeartMonitorFragment"
+        android:label="fragment_statistics"
+        tools:layout="@layout/fragment_heartmonitor" />
+    <fragment
+        android:id="@+id/navigation_profile"
+        android:name="com.example.sanitas.ui.profile.ProfileFragment"
+        android:label="fragment_profile"
+        tools:layout="@layout/fragment_profile" >
+        <action
+            android:id="@+id/action_navigation_profile_to_navigation_login"
+            app:destination="@id/navigation_login" />
+    </fragment>
+    <!--    <fragment-->
+<!--        android:id="@+id/navigation_statistics"-->
+<!--        android:name="com.example.sanitas.ui.statistics.StatisticsFragment"-->
+<!--        android:label="fragment_statistics"-->
+<!--        tools:layout="@layout/fragment_statistics"/>-->
+
+</navigation>
