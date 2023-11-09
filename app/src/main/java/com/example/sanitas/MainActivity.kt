@@ -31,7 +31,7 @@ class MainActivity : AppCompatActivity() {
                 R.id.navigation_dashboard, R.id.navigation_notifications, R.id.navigation_settings, R.id.navigation_positioning, R.id.navigation_heartmonitor
             )
         )
-        setupActionBarWithNavController(navController, appBarConfiguration)
+//        setupActionBarWithNavController(navController, appBarConfiguration)
         navView.setupWithNavController(navController)
         navController.addOnDestinationChangedListener { _, destination, _ ->
             when (destination.id){
