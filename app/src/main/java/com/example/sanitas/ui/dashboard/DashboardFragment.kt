@@ -6,24 +6,28 @@ import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
 import android.hardware.SensorManager
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
-import androidx.core.content.ContextCompat.getSystemService
-import androidx.core.content.getSystemService
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import com.example.sanitas.databinding.FragmentDashboardBinding
+import com.example.sanitas.dataprocessing.checkStep
+import com.example.sanitas.dataprocessing.filteredOutput
+import com.example.sanitas.dataprocessing.filteredResult
+import kotlin.math.sqrt
 
 class DashboardFragment : Fragment(), SensorEventListener {
     private lateinit var sensorManager: SensorManager
     private var _binding: FragmentDashboardBinding? = null
 
+    private var mAccelerometer: Sensor? = null
     // This property is only valid between onCreateView and
     // onDestroyView.
     private val binding get() = _binding!!
-
+    private var stepCounter = 0
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -52,8 +56,8 @@ class DashboardFragment : Fragment(), SensorEventListener {
             sensorManager.registerListener(
                 this,
                 accelerometer,
-                SensorManager.SENSOR_DELAY_NORMAL,
-                SensorManager.SENSOR_DELAY_NORMAL
+                SensorManager.SENSOR_DELAY_GAME,
+                SensorManager.SENSOR_DELAY_FASTEST
             )
         }
     }
@@ -70,8 +74,26 @@ class DashboardFragment : Fragment(), SensorEventListener {
             val x = event.values[0]
             val y = event.values[1]
             val z = event.values[2]
-            binding.textDashboard.text = "x=${x}\ny=${y}\nz=${z}"
+            val totalAcc = sqrt(Math.pow(x.toDouble(),2.0) + Math.pow(y.toDouble(),2.0) + Math.pow(z.toDouble(),2.0))
+            filteredResult(totalAcc)
+            if (checkStep()) {
+                stepCounter += 1
+                binding.textDashboard.text = "Steps: ${stepCounter}"
+            }
         }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        mAccelerometer?.also { accelerometer ->
+            sensorManager.registerListener(this, accelerometer, SensorManager.SENSOR_DELAY_GAME,
+                SensorManager.SENSOR_DELAY_FASTEST)
+        }
+    }
+
+    override fun onPause() {
+        super.onPause()
+        sensorManager.unregisterListener(this)
     }
 
     override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) {
