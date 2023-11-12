@@ -96,7 +96,7 @@ class HeartMonitorFragment : Fragment() {
                 try {
                     imageAnalysis.setAnalyzer(
                         ContextCompat.getMainExecutor(requireActivity()),
-                        HeartbeatImageAnalyzer(previewView, ::updatePreview)
+                        HeartbeatImageAnalyzer(previewView, ::onAnalyzeImageComplete)
                     )
                     cameraProviderFuture.addListener({
                         cameraProvider.unbindAll()
@@ -124,7 +124,8 @@ class HeartMonitorFragment : Fragment() {
         requireActivity(), Manifest.permission.CAMERA
     ) == PackageManager.PERMISSION_GRANTED
 
-    private fun updatePreview(bitmap: Bitmap) {
+    // TODO: after complete analyze image, update UI in here
+    private fun onAnalyzeImageComplete(args: String?) {
 //        requireActivity().runOnUiThread {
 //            // Update your UI element (e.g., ImageView) with the grayscale bitmap
 //            imageView.setImageBitmap(bitmap)
@@ -149,7 +150,7 @@ class HeartMonitorFragment : Fragment() {
 
     class HeartbeatImageAnalyzer(
         private val previewView: PreviewView,
-        private val updatePreviewCallback: (Bitmap) -> Unit
+        private val onAnalyzeImageComplete: (args: String?) -> Unit
     ) : ImageAnalysis.Analyzer {
         private val TAG = "HeartbeatImageAnalyzer"
         private var i = 0
@@ -178,6 +179,7 @@ class HeartMonitorFragment : Fragment() {
 
                 i++
                 Log.i(TAG, i.toString())
+                onAnalyzeImageComplete(null)
             } catch (e: Exception) {
                 Log.e(TAG, e.message.toString())
             } finally {
