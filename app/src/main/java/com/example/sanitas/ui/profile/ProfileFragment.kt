@@ -26,7 +26,7 @@ class ProfileFragment : Fragment() {
     ): View? {
         binding = FragmentProfileBinding.inflate(inflater, container, false)
         binding.logoutButton.setOnClickListener {
-            Toast.makeText(activity, "Đăng xuất ô tô kê", Toast.LENGTH_SHORT).show()
+            Toast.makeText(activity, "Bạn đã đăng xuất", Toast.LENGTH_SHORT).show()
             findNavController().navigate(R.id.action_navigation_profile_to_navigation_login)
         }
         return binding.root
