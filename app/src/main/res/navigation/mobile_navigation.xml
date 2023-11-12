@@ -32,6 +32,8 @@
             android:id="@+id/action_navigation_login_to_navigation_register"
             app:destination="@id/navigation_register" />
         <action
+            app:popUpTo="@+id/mobile_navigation"
+            app:popUpToInclusive="true"
             android:id="@+id/action_navigation_login_to_navigation_dashboard"
             app:destination="@id/navigation_dashboard" />
     </fragment>
@@ -60,6 +62,8 @@
         android:label="fragment_profile"
         tools:layout="@layout/fragment_profile" >
         <action
+            app:popUpTo="@+id/mobile_navigation"
+            app:popUpToInclusive="true"
             android:id="@+id/action_navigation_profile_to_navigation_login"
             app:destination="@id/navigation_login" />
     </fragment>

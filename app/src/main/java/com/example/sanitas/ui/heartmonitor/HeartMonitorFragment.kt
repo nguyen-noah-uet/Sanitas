@@ -18,6 +18,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.ImageView
+import androidx.camera.core.Camera
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.ImageProxy
@@ -34,6 +35,7 @@ import com.google.common.util.concurrent.ListenableFuture
 import java.io.ByteArrayOutputStream
 
 class HeartMonitorFragment : Fragment() {
+    private lateinit var camera: Camera
     private val TAG = "HeartMonitorFragment"
 
     private lateinit var cameraSelector: CameraSelector
@@ -100,12 +102,13 @@ class HeartMonitorFragment : Fragment() {
                     )
                     cameraProviderFuture.addListener({
                         cameraProvider.unbindAll()
-                        cameraProvider.bindToLifecycle(
+                        camera = cameraProvider.bindToLifecycle(
                             requireActivity(),
                             cameraSelector,
                             imageAnalysis,
                             preview
                         )
+                        camera.cameraControl.enableTorch(true)
                     }, ContextCompat.getMainExecutor(requireActivity()))
                 } catch (e: Exception) {
                     Log.e(TAG, e.message.toString())
@@ -114,6 +117,7 @@ class HeartMonitorFragment : Fragment() {
                 }
             } else {
                 imageAnalysis.clearAnalyzer()
+                camera.cameraControl.enableTorch(false)
 //                imageView.destroyDrawingCache()
                 isAnalyzing = false
                 startStopButton.text = "Start"
