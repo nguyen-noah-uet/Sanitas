@@ -1,5 +1,7 @@
 package com.example.sanitas.ui.heartmonitor
 
+import android.Manifest
+import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.Canvas
@@ -22,6 +24,7 @@ import androidx.camera.core.ImageProxy
 import androidx.camera.core.Preview
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.view.PreviewView
+import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.LifecycleOwner
@@ -48,6 +51,11 @@ class HeartMonitorFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
+        if(!hasCameraPermission()) {
+            ActivityCompat.requestPermissions(
+                requireActivity(), arrayOf(Manifest.permission.CAMERA), 0
+            )
+        }
         binding = FragmentHeartmonitorBinding.inflate(inflater, container, false)
         configureBinding()
         viewModel = ViewModelProvider(this).get(HeartMonitorViewModel::class.java)
@@ -112,6 +120,9 @@ class HeartMonitorFragment : Fragment() {
             }
         }
     }
+    private fun hasCameraPermission() = ContextCompat.checkSelfPermission(
+        requireActivity(), Manifest.permission.CAMERA
+    ) == PackageManager.PERMISSION_GRANTED
 
     private fun updatePreview(bitmap: Bitmap) {
 //        requireActivity().runOnUiThread {
