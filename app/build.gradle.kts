@@ -40,6 +40,7 @@ android {
 
 dependencies {
     implementation("androidx.camera:camera-video:1.3.0")
+    implementation("androidx.gridlayout:gridlayout:1.0.0")
     val cameraxVersion = "1.1.0-alpha05"
     implementation("androidx.camera:camera-core:${cameraxVersion}")
     implementation("androidx.camera:camera-camera2:${cameraxVersion}")
