@@ -11,7 +11,7 @@
         android:icon="@drawable/baseline_location_on_24"
         android:title="@string/title_positioning" />
     <item
-        android:id="@+id/navigation_heartmonitor"
+        android:id="@+id/navigation_heartonitor1"
         android:icon="@drawable/baseline_monitor_heart_24"
         android:title="@string/title_heartmonitor" />
     <item
