@@ -57,15 +57,21 @@ fun dft(signal: DoubleArray): Array<Complex> {
         }
         frequencyArray[k] = temp
     }
-
     return frequencyArray
 }
 
 fun heartBeatEvaluation(signal: DoubleArray, fs: Double):Double {
 //    val frequencyArr = dft(signal)
+    var mean = 0.0
+    for (i in signal.indices) {
+        mean += signal[i]
+    }
+    for (i in signal.indices) {
+        signal[i] -= mean/signal.size
+    }
     val frequencyArr = fft(signal)
     val nSamples = frequencyArr.size
-    val minFrequency:Int = 5
+    val minFrequency = 1
     var index = (minFrequency * nSamples /  1.0 / fs).toInt()
     var indexMax = index
     index += 1
@@ -75,23 +81,18 @@ fun heartBeatEvaluation(signal: DoubleArray, fs: Double):Double {
         }
         index += 1
     }
-    return indexMax * fs * 1.0/nSamples
+    return indexMax * fs * 60.0/nSamples
 }
 
 fun  main() {
     // Cheek operation of `heartBeatEvaluation` function, the result must close to 'f'
     // ! Make sure fs >= 2*f (nyquist theory)
-    val nSamples = 278
-    val fs = 30.0
-    val f = 15.5
+    val nSamples = 276
+    val fs = 5.0
+    val f = 0.9
     val signal = DoubleArray(nSamples)
-    var mean = 0.0
     for (i in 0 until nSamples) {
         signal[i] = Math.sin(2*Math.PI*f*(i*1.0/fs))
-        mean += signal[i]
-    }
-    for (i in 0 until nSamples) {
-        signal[i] -= mean/nSamples
     }
     println(heartBeatEvaluation(signal, fs))
 }

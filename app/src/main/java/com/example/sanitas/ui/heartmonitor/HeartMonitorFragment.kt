@@ -31,6 +31,7 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ViewModelProvider
 import com.example.sanitas.databinding.FragmentHeartmonitorBinding
+import com.example.sanitas.dataprocessing.heartBeatEvaluation
 import com.google.common.util.concurrent.ListenableFuture
 import java.io.ByteArrayOutputStream
 
@@ -49,6 +50,7 @@ class HeartMonitorFragment : Fragment() {
     private lateinit var imageView: ImageView
     private lateinit var startStopButton: Button
     private var isAnalyzing = false
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -158,32 +160,50 @@ class HeartMonitorFragment : Fragment() {
     ) : ImageAnalysis.Analyzer {
         private val TAG = "HeartbeatImageAnalyzer"
         private var i = 0
-
+        private val signalArraySize = 256
+        private var signal = DoubleArray(signalArraySize)
+        private var currentSignal = 0
+        private var calculatedHeartBeat = 0.0
         // Latest frame of camera preview can be analyze in this function
         override fun analyze(image: ImageProxy) {
+            val numberToCalMedian = 15
             try {
-                val yBuffer = image.planes[0].buffer
-                val uBuffer = image.planes[1].buffer
-                val vBuffer = image.planes[2].buffer
-                val ySize = yBuffer.remaining()
-                val uSize = uBuffer.remaining()
-                val vSize = vBuffer.remaining()
+                if (currentSignal < signalArraySize) {
+                    // get Y chanel data
+                    val yBuffer = image.planes[0].buffer
+                    // get size of buffer
+                    val ySize = yBuffer.remaining()
+                    val data = ByteArray(ySize)
+                    // Copy Y to output array
+                    yBuffer.get(data, 0, ySize)
 
-                val nv21 = ByteArray(ySize + uSize + vSize)
+                    var intensity = 0.0
+                    var i = 0
+                    while (i < data.size - numberToCalMedian) {
+                        val median = data.slice(i until i + numberToCalMedian).toByteArray()
+                        median.sort()
+                        intensity += median[numberToCalMedian/2]
+                        i += numberToCalMedian
+                    }
+//                    for (i in data.indices) {
+//                        intensity += data[i]
+//                    }
+                    intensity /= data.size
+//                    Log.i(TAG, intensity.toString())
+                    signal[currentSignal] = intensity
+                    Log.i(TAG, signal[currentSignal].toString())
+                    currentSignal += 1
+                    if (currentSignal == signalArraySize) {
+                        // calculatedHeartBeat
+                        calculatedHeartBeat = heartBeatEvaluation(signal, 11.0)
+                        Log.i("HB", calculatedHeartBeat.toString())
+                    }
 
-                // Copy Y to output array
-                yBuffer.get(nv21, 0, ySize)
-
-                // Copy UV to output array
-                vBuffer.get(nv21, ySize, vSize)
-                uBuffer.get(nv21, ySize + vSize, uSize)
-
-                val yuvImage = YuvImage(nv21, ImageFormat.NV21, image.width, image.height, null)
-                val outputBitmap = yuvImage.toBitmap()
-
-                i++
-                Log.i(TAG, i.toString())
-                onAnalyzeImageComplete(null)
+                } else {
+//                    calculatedHeartBeat = heartBeatEvaluation(signal, 10.0)
+//                    Log.i("HB", calculatedHeartBeat.toString())
+//                    currentSignal = 0
+                }
             } catch (e: Exception) {
                 Log.e(TAG, e.message.toString())
             } finally {
