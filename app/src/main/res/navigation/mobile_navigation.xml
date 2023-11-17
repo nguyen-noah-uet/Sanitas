@@ -67,6 +67,24 @@
             android:id="@+id/action_navigation_profile_to_navigation_login"
             app:destination="@id/navigation_login" />
     </fragment>
+    <fragment android:id="@+id/navigation_heartonitor1"
+              android:name="com.example.sanitas.ui.heartmonitor.HeartMonitorFragment1"
+              android:label="fragment_heartmonitor1" tools:layout="@layout/fragment_heartmonitor1">
+        <action android:id="@+id/action_navigation_heartonitor1_to_navigation_heartonitor2"
+                app:destination="@id/navigation_heartonitor2"/>
+    </fragment>
+    <fragment android:id="@+id/navigation_heartonitor2"
+              android:name="com.example.sanitas.ui.heartmonitor.HeartMonitorFragment2"
+              android:label="fragment_heartmonitor2" tools:layout="@layout/fragment_heartmonitor2">
+        <action android:id="@+id/action_navigation_heartonitor2_to_navigation_heartonitor3"
+                app:destination="@id/navigation_heartonitor3"/>
+    </fragment>
+    <fragment android:id="@+id/navigation_heartonitor3"
+              android:name="com.example.sanitas.ui.heartmonitor.HeartMonitorFragment3"
+              android:label="fragment_heartmonitor3" tools:layout="@layout/fragment_heartmonitor3">
+        <action android:id="@+id/action_navigation_heartonitor3_to_navigation_heartmonitor"
+                app:destination="@id/navigation_heartmonitor"/>
+    </fragment>
     <!--    <fragment-->
 <!--        android:id="@+id/navigation_statistics"-->
 <!--        android:name="com.example.sanitas.ui.statistics.StatisticsFragment"-->
