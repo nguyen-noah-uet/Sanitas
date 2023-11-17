@@ -32,7 +32,7 @@ class LoginFragment : Fragment() {
         navController = findNavController()
 
         binding.loginButton.setOnClickListener {
-            Toast.makeText(activity, "hilu", Toast.LENGTH_SHORT).show()
+            Toast.makeText(activity, "Chào mừng!", Toast.LENGTH_SHORT).show()
             navController.navigate(R.id.action_navigation_login_to_navigation_dashboard)
         }
         binding.registerButton.setOnClickListener {

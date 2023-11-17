@@ -18,6 +18,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.ImageView
+import androidx.camera.core.Camera
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.ImageProxy
@@ -35,6 +36,7 @@ import com.google.common.util.concurrent.ListenableFuture
 import java.io.ByteArrayOutputStream
 
 class HeartMonitorFragment : Fragment() {
+    private lateinit var camera: Camera
     private val TAG = "HeartMonitorFragment"
 
     private lateinit var cameraSelector: CameraSelector
@@ -98,16 +100,17 @@ class HeartMonitorFragment : Fragment() {
                 try {
                     imageAnalysis.setAnalyzer(
                         ContextCompat.getMainExecutor(requireActivity()),
-                        HeartbeatImageAnalyzer(previewView, ::updatePreview)
+                        HeartbeatImageAnalyzer(previewView, ::onAnalyzeImageComplete)
                     )
                     cameraProviderFuture.addListener({
                         cameraProvider.unbindAll()
-                        cameraProvider.bindToLifecycle(
+                        camera = cameraProvider.bindToLifecycle(
                             requireActivity(),
                             cameraSelector,
                             imageAnalysis,
                             preview
                         )
+                        camera.cameraControl.enableTorch(true)
                     }, ContextCompat.getMainExecutor(requireActivity()))
                 } catch (e: Exception) {
                     Log.e(TAG, e.message.toString())
@@ -116,6 +119,7 @@ class HeartMonitorFragment : Fragment() {
                 }
             } else {
                 imageAnalysis.clearAnalyzer()
+                camera.cameraControl.enableTorch(false)
 //                imageView.destroyDrawingCache()
                 isAnalyzing = false
                 startStopButton.text = "Start"
@@ -126,7 +130,8 @@ class HeartMonitorFragment : Fragment() {
         requireActivity(), Manifest.permission.CAMERA
     ) == PackageManager.PERMISSION_GRANTED
 
-    private fun updatePreview(bitmap: Bitmap) {
+    // TODO: after complete analyze image, update UI in here
+    private fun onAnalyzeImageComplete(args: String?) {
 //        requireActivity().runOnUiThread {
 //            // Update your UI element (e.g., ImageView) with the grayscale bitmap
 //            imageView.setImageBitmap(bitmap)
@@ -151,7 +156,7 @@ class HeartMonitorFragment : Fragment() {
 
     class HeartbeatImageAnalyzer(
         private val previewView: PreviewView,
-        private val updatePreviewCallback: (Bitmap) -> Unit
+        private val onAnalyzeImageComplete: (args: String?) -> Unit
     ) : ImageAnalysis.Analyzer {
         private val TAG = "HeartbeatImageAnalyzer"
         private var i = 0
@@ -198,7 +203,6 @@ class HeartMonitorFragment : Fragment() {
 //                    calculatedHeartBeat = heartBeatEvaluation(signal, 10.0)
 //                    Log.i("HB", calculatedHeartBeat.toString())
 //                    currentSignal = 0
-
                 }
             } catch (e: Exception) {
                 Log.e(TAG, e.message.toString())

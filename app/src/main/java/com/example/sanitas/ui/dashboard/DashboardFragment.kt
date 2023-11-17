@@ -41,9 +41,6 @@ class DashboardFragment : Fragment(), SensorEventListener {
         val root: View = binding.root
 
         val textView: TextView = binding.textDashboard
-        dashboardViewModel.text.observe(viewLifecycleOwner) {
-            textView.text = it
-        }
         return root
     }
 
@@ -78,7 +75,7 @@ class DashboardFragment : Fragment(), SensorEventListener {
             filteredResult(totalAcc)
             if (checkStep()) {
                 stepCounter += 1
-                binding.textDashboard.text = "Steps: ${stepCounter}"
+                binding.StepEditText.text = "Steps: ${stepCounter}"
             }
         }
     }
