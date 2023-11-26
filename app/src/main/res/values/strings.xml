@@ -7,4 +7,6 @@
     <string name="title_positioning">Vị trí</string>
     <string name="title_heartmonitor">Đo nhịp tim</string>
     <string name="title_profile">Hồ sơ</string>
+    <string name="track_button">Track</string>
+    <string name="stop_button">Stop</string>
 </resources>

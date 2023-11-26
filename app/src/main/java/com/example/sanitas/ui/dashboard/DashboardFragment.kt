@@ -6,7 +6,6 @@ import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
 import android.hardware.SensorManager
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -15,8 +14,8 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import com.example.sanitas.databinding.FragmentDashboardBinding
 import com.example.sanitas.dataprocessing.checkStep
-import com.example.sanitas.dataprocessing.filteredOutput
 import com.example.sanitas.dataprocessing.filteredResult
+import com.example.sanitas.ui.dashboard.DashboardViewModel
 import kotlin.math.sqrt
 
 class DashboardFragment : Fragment(), SensorEventListener {
