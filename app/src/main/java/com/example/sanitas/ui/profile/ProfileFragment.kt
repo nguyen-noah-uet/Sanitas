@@ -36,10 +36,6 @@ class ProfileFragment : Fragment() {
         super.onActivityCreated(savedInstanceState)
         viewModel = ViewModelProvider(this).get(ProfileViewModel::class.java)
         // TODO: Use the ViewModel
-        viewModel.text.observe(viewLifecycleOwner) {
-            binding.textView.text = it
-        }
-
     }
 
 }
