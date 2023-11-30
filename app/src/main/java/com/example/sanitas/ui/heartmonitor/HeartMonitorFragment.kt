@@ -185,7 +185,7 @@ class HeartMonitorFragment : Fragment() {
 
         // Latest frame of camera preview can be analyze in this function
         override fun analyze(image: ImageProxy) {
-            val numberToCalMedian = 15
+            val numberToCalMedian = 25
             try {
                 if (currentSignal < signalArraySize) {
                     // get Y chanel data
