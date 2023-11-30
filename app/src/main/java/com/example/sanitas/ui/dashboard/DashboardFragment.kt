@@ -6,7 +6,6 @@ import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
 import android.hardware.SensorManager
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -14,8 +13,8 @@ import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import com.example.sanitas.databinding.FragmentDashboardBinding
+import com.example.sanitas.dataprocessing.StepMonitor
 import com.example.sanitas.dataprocessing.checkStep
-import com.example.sanitas.dataprocessing.filteredOutput
 import com.example.sanitas.dataprocessing.filteredResult
 import kotlin.math.sqrt
 
@@ -28,6 +27,7 @@ class DashboardFragment : Fragment(), SensorEventListener {
     // onDestroyView.
     private val binding get() = _binding!!
     private var stepCounter = 0
+    private var stepMonitor = StepMonitor()
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -57,6 +57,15 @@ class DashboardFragment : Fragment(), SensorEventListener {
                 SensorManager.SENSOR_DELAY_FASTEST
             )
         }
+        sensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE)?.also { gyroscope ->
+            sensorManager.registerListener(
+                this,
+                gyroscope,
+                SensorManager.SENSOR_DELAY_GAME,
+                SensorManager.SENSOR_DELAY_FASTEST
+            )
+        }
+
     }
 
     override fun onDestroyView() {
@@ -71,26 +80,39 @@ class DashboardFragment : Fragment(), SensorEventListener {
             val x = event.values[0]
             val y = event.values[1]
             val z = event.values[2]
-            val totalAcc = sqrt(Math.pow(x.toDouble(),2.0) + Math.pow(y.toDouble(),2.0) + Math.pow(z.toDouble(),2.0))
-            filteredResult(totalAcc)
-            if (checkStep()) {
-                stepCounter += 1
-                binding.StepEditText.text = "Steps: ${stepCounter}"
-            }
+            stepMonitor.setAccelerometer(x, y, z)
+
+            // using low pass filter
+//            val totalAcc = sqrt(Math.pow(x.toDouble(),2.0) + Math.pow(y.toDouble(),2.0) + Math.pow(z.toDouble(),2.0))
+//            filteredResult(totalAcc)
+//            if (checkStep()) {
+//                stepCounter += 1
+//                binding.StepEditText.text = "Steps: ${stepCounter}"
+//            }
         }
+        if (event?.sensor?.type == Sensor.TYPE_GYROSCOPE) {
+            val raw = event.values[0]
+            val pitch = event.values[1]
+            stepMonitor.setGyro(raw, pitch)
+        }
+        if (stepMonitor.detectStep()) {
+            stepCounter += 1
+        }
+        binding.StepEditText.text = "Steps: ${stepCounter}"
+//        binding.StepEditText.text = "Steps: ${stepMonitor.rawRoll}"
     }
 
     override fun onResume() {
         super.onResume()
-        mAccelerometer?.also { accelerometer ->
-            sensorManager.registerListener(this, accelerometer, SensorManager.SENSOR_DELAY_GAME,
-                SensorManager.SENSOR_DELAY_FASTEST)
-        }
+//        mAccelerometer?.also { accelerometer ->
+//            sensorManager.registerListener(this, accelerometer, SensorManager.SENSOR_DELAY_GAME,
+//                SensorManager.SENSOR_DELAY_FASTEST)
+//        }
     }
 
     override fun onPause() {
         super.onPause()
-        sensorManager.unregisterListener(this)
+//        sensorManager.unregisterListener(this)
     }
 
     override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) {
