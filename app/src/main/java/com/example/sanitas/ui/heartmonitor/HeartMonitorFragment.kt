@@ -1,13 +1,13 @@
 package com.example.sanitas.ui.heartmonitor
 
 import android.Manifest
+import android.annotation.SuppressLint
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.Canvas
 import android.graphics.ColorMatrix
 import android.graphics.ColorMatrixColorFilter
-import android.graphics.ImageFormat
 import android.graphics.Paint
 import android.graphics.Rect
 import android.graphics.YuvImage
@@ -18,6 +18,9 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.ImageView
+import android.widget.ProgressBar
+import android.widget.TextView
+import android.widget.Toast
 import androidx.camera.core.Camera
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.ImageAnalysis
@@ -30,6 +33,7 @@ import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ViewModelProvider
+import com.example.sanitas.R
 import com.example.sanitas.databinding.FragmentHeartmonitorBinding
 import com.example.sanitas.dataprocessing.heartBeatEvaluation
 import com.google.common.util.concurrent.ListenableFuture
@@ -47,8 +51,9 @@ class HeartMonitorFragment : Fragment() {
     private lateinit var binding: FragmentHeartmonitorBinding
     private lateinit var cameraProviderFuture: ListenableFuture<ProcessCameraProvider>
     private lateinit var previewView: PreviewView
-    private lateinit var imageView: ImageView
     private lateinit var startStopButton: Button
+    private lateinit var progressBar: ProgressBar
+    private lateinit var infoTextView: TextView
     private var isAnalyzing = false
 
     override fun onCreateView(
@@ -90,17 +95,23 @@ class HeartMonitorFragment : Fragment() {
 
     private fun configureBinding() {
         previewView = binding.previewView
-        imageView = binding.imageView
         startStopButton = binding.startStopButton
+        progressBar = binding.progressBar
+        infoTextView = binding.infoTextView
         startStopButton.setOnClickListener {
             if (!isAnalyzing) {
+
                 isAnalyzing = true
-                startStopButton.text = "Stop"
+                startStopButton.text = resources.getString(R.string.stop)
+                progressBar.visibility = View.VISIBLE
+                infoTextView.text = resources.getString(R.string.waitingMeasurement)
+                infoTextView.visibility = View.VISIBLE
+
                 // start image analysis
                 try {
                     imageAnalysis.setAnalyzer(
                         ContextCompat.getMainExecutor(requireActivity()),
-                        HeartbeatImageAnalyzer(previewView, ::onAnalyzeImageComplete)
+                        HeartbeatImageAnalyzer(previewView, ::onHeartbeatCalculated)
                     )
                     cameraProviderFuture.addListener({
                         cameraProvider.unbindAll()
@@ -115,14 +126,16 @@ class HeartMonitorFragment : Fragment() {
                 } catch (e: Exception) {
                     Log.e(TAG, e.message.toString())
                     isAnalyzing = false
-                    startStopButton.text = "Start"
+                    startStopButton.text = resources.getString(R.string.start)
                 }
             } else {
                 imageAnalysis.clearAnalyzer()
                 camera.cameraControl.enableTorch(false)
 //                imageView.destroyDrawingCache()
                 isAnalyzing = false
-                startStopButton.text = "Start"
+                startStopButton.text = resources.getString(R.string.start)
+                progressBar.visibility = View.GONE
+                infoTextView.visibility = View.GONE
             }
         }
     }
@@ -131,11 +144,15 @@ class HeartMonitorFragment : Fragment() {
     ) == PackageManager.PERMISSION_GRANTED
 
     // TODO: after complete analyze image, update UI in here
-    private fun onAnalyzeImageComplete(args: String?) {
-//        requireActivity().runOnUiThread {
-//            // Update your UI element (e.g., ImageView) with the grayscale bitmap
-//            imageView.setImageBitmap(bitmap)
-//        }
+    @SuppressLint("SetTextI18n")
+    private fun onHeartbeatCalculated(calculatedHeartBeat: Double) {
+        imageAnalysis.clearAnalyzer()
+        camera.cameraControl.enableTorch(false)
+        isAnalyzing = false
+        startStopButton.text = resources.getString(R.string.start)
+        progressBar.visibility = View.GONE
+        infoTextView.text = "${resources.getString(R.string.heartbeatMeasure)} ${String.format("%.2f", calculatedHeartBeat)}(bpm)"
+        Toast.makeText(requireActivity(), calculatedHeartBeat.toString(), Toast.LENGTH_SHORT).show()
     }
 
     private fun bindPreview(cameraProvider: ProcessCameraProvider) {
@@ -156,17 +173,19 @@ class HeartMonitorFragment : Fragment() {
 
     class HeartbeatImageAnalyzer(
         private val previewView: PreviewView,
-        private val onAnalyzeImageComplete: (args: String?) -> Unit
+        private val onCalculateComplete: (calculatedHeartBeat: Double) -> Unit
     ) : ImageAnalysis.Analyzer {
         private val TAG = "HeartbeatImageAnalyzer"
         private var i = 0
-        private val signalArraySize = 256
+        private val signalArraySize = 128
         private var signal = DoubleArray(signalArraySize)
         private var currentSignal = 0
         private var calculatedHeartBeat = 0.0
+        private var isCalculating = false
+
         // Latest frame of camera preview can be analyze in this function
         override fun analyze(image: ImageProxy) {
-            val numberToCalMedian = 15
+            val numberToCalMedian = 25
             try {
                 if (currentSignal < signalArraySize) {
                     // get Y chanel data
@@ -191,18 +210,18 @@ class HeartMonitorFragment : Fragment() {
                     intensity /= data.size
 //                    Log.i(TAG, intensity.toString())
                     signal[currentSignal] = intensity
-                    Log.i(TAG, signal[currentSignal].toString())
+//                    Log.i(TAG, signal[currentSignal].toString())
+
                     currentSignal += 1
                     if (currentSignal == signalArraySize) {
                         // calculatedHeartBeat
                         calculatedHeartBeat = heartBeatEvaluation(signal, 11.0)
-                        Log.i("HB", calculatedHeartBeat.toString())
+                        Log.i(TAG, calculatedHeartBeat.toString())
+                        onCalculateComplete(calculatedHeartBeat)
                     }
-
+0
                 } else {
-//                    calculatedHeartBeat = heartBeatEvaluation(signal, 10.0)
-//                    Log.i("HB", calculatedHeartBeat.toString())
-//                    currentSignal = 0
+
                 }
             } catch (e: Exception) {
                 Log.e(TAG, e.message.toString())
