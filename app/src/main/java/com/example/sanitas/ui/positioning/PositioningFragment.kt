@@ -1,38 +1,146 @@
 package com.example.sanitas.ui.positioning
 
-import androidx.lifecycle.ViewModelProvider
 import android.os.Bundle
-import androidx.fragment.app.Fragment
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.fragment.app.Fragment
+import androidx.lifecycle.ViewModelProvider
 import com.example.sanitas.R
 import com.example.sanitas.databinding.FragmentPositioningBinding
+import com.here.sdk.core.Color
+import com.here.sdk.core.GeoCoordinates
+import com.here.sdk.core.GeoPolyline
+import com.here.sdk.core.Location
+import com.here.sdk.core.errors.InstantiationErrorException
+import com.here.sdk.mapview.MapImageFactory
+import com.here.sdk.mapview.MapMarker
+import com.here.sdk.mapview.MapMeasure
+import com.here.sdk.mapview.MapPolyline
+import com.here.sdk.mapview.MapScheme
+import com.here.sdk.mapview.MapView
+
 
 class PositioningFragment : Fragment() {
 
-    companion object {
-        fun newInstance() = PositioningFragment()
-    }
+    private var _binding: FragmentPositioningBinding? = null
+    private val binding get() = _binding!!
 
-    private lateinit var viewModel: PositioningViewModel
-    private lateinit var binding: FragmentPositioningBinding
+    // UI related properties
+    private lateinit var mapView: MapView
+    private var currentLocationMarker: MapMarker? = null
+    private var displayPolyline: MapPolyline? = null
+
+
     override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
+        inflater: LayoutInflater,
+        container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
-        binding = FragmentPositioningBinding.inflate(inflater, container, false)
+    ): View {
 
-        return binding.root
+        _binding = FragmentPositioningBinding.inflate(inflater, container, false)
+        val root: View = binding.root
+
+
+        // ViewModel operations
+        val positioningViewModel =
+            ViewModelProvider(this)[PositioningViewModel::class.java]
+
+        positioningViewModel.setupProvider(requireContext())
+        positioningViewModel.location.observe(viewLifecycleOwner) {
+            updateLocationMarker(it)
+        }
+        positioningViewModel.tracked.observe(viewLifecycleOwner) {
+            updateMapPolyline(it)
+        }
+
+        // MapView init
+        mapView = binding.mapView
+        mapView.onCreate(savedInstanceState)
+
+
+        // Handle track button click
+        val trackBtn = binding.trackButton
+        trackBtn.setOnClickListener {
+            if (trackBtn.text.equals("Track")) {
+                trackBtn.text = getString(R.string.stop_button)
+                trackBtn.setBackgroundColor(android.graphics.Color.YELLOW)
+            } else {
+                trackBtn.text = getString(R.string.track_button)
+                trackBtn.setBackgroundColor(android.graphics.Color.BLUE)
+            }
+            positioningViewModel.switchTracking()
+        }
+
+        loadMapScene()
+
+        return root
     }
 
-    override fun onActivityCreated(savedInstanceState: Bundle?) {
-        super.onActivityCreated(savedInstanceState)
-        viewModel = ViewModelProvider(this).get(PositioningViewModel::class.java)
-        // TODO: Use the ViewModel
-        viewModel.text.observe(viewLifecycleOwner){
-            binding.textView.text = it
+
+    private fun loadMapScene() {
+        // Load a scene from the HERE SDK to render the map with a map scheme.
+        mapView.mapScene.loadScene(
+            MapScheme.NORMAL_DAY
+        ) { mapError ->
+            if (mapError == null) {
+                val distanceInMeters = (1000 * 10).toDouble()
+                val mapMeasureZoom = MapMeasure(MapMeasure.Kind.DISTANCE, distanceInMeters)
+                mapView.camera.lookAt(
+                    GeoCoordinates(21.0378124, 105.7638597), mapMeasureZoom
+                )
+            } else {
+                Log.d("loadMapScene()", "Loading map failed: mapError: " + mapError.name)
+            }
         }
     }
 
+    override fun onSaveInstanceState(outState: Bundle) {
+        mapView.onSaveInstanceState(outState)
+        super.onSaveInstanceState(outState)
+    }
+
+    override fun onDestroyView() {
+        mapView.onDestroy()
+        super.onDestroyView()
+        _binding = null
+    }
+
+
+    private fun updateLocationMarker(location: Location?) {
+        if (currentLocationMarker == null) {
+            if (location != null) {
+                currentLocationMarker = MapMarker(
+                    location.coordinates,
+                    MapImageFactory.fromResource(requireContext().resources, R.drawable.pinpoint)
+                )
+                mapView.mapScene.addMapMarker(currentLocationMarker!!)
+            }
+        }
+        if (location != null) {
+            currentLocationMarker!!.coordinates = location.coordinates
+        }
+    }
+
+
+    private fun updateMapPolyline(line: ArrayList<GeoCoordinates>) {
+        val geoPolyline: GeoPolyline
+
+        Log.e("LOG1", "<- update polyline")
+        try {
+            geoPolyline = GeoPolyline(line)
+        } catch (exception: InstantiationErrorException) {
+            Log.e("EXC", exception.toString())
+            return
+        }
+
+        Log.e("LOG2", "-> init geoPolyline success")
+        val widthInPixel = 20.0
+        val lineColor = Color.valueOf(0f, 0.56f, 0.54f, 0.63f) //RGBA
+
+        displayPolyline?.let { mapView.mapScene.removeMapPolyline(it) }
+        displayPolyline = MapPolyline(geoPolyline, widthInPixel, lineColor)
+        mapView.mapScene.addMapPolyline(displayPolyline!!)
+    }
 }

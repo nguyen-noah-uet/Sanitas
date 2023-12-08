@@ -16,6 +16,7 @@ import com.example.sanitas.databinding.FragmentDashboardBinding
 import com.example.sanitas.dataprocessing.StepMonitor
 import com.example.sanitas.dataprocessing.checkStep
 import com.example.sanitas.dataprocessing.filteredResult
+import com.example.sanitas.ui.dashboard.DashboardViewModel
 import kotlin.math.sqrt
 
 class DashboardFragment : Fragment(), SensorEventListener {
