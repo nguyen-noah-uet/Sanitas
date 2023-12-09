@@ -36,6 +36,7 @@ android {
     buildFeatures {
         viewBinding = true
     }
+    buildToolsVersion = "34.0.0"
 }
 
 dependencies {
@@ -72,4 +73,7 @@ dependencies {
         "dir" to "libs/",
         "include" to listOf("*.aar", "*.jar"),
     )))
+
+    // worker
+    implementation("androidx.work:work-runtime-ktx:2.7.0")
 }

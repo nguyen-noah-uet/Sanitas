@@ -11,11 +11,11 @@
         android:layout_width="270dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
-        android:layout_marginTop="116dp"
+        android:layout_marginTop="44dp"
         android:layout_marginEnd="8dp"
         android:text="Đo nhịp tim bằng máy ảnh trên điện thoại"
         android:textAlignment="center"
-        android:textColor="#FF9800"
+        android:textColor="#FF6D00"
         android:textSize="20sp"
         android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="parent"
@@ -23,12 +23,22 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
+    <!--    <Button-->
+<!--        android:id="@+id/button"-->
+<!--        android:layout_width="wrap_content"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:layout_marginStart="26dp"-->
+<!--        android:layout_marginBottom="22dp"-->
+<!--        android:text="Hủy"-->
+<!--        app:layout_constraintBottom_toBottomOf="parent"-->
+<!--        app:layout_constraintStart_toStartOf="parent" />-->
+
     <ImageView
         android:id="@+id/imageView5"
         android:layout_width="294dp"
         android:layout_height="375dp"
         android:layout_marginStart="16dp"
-        android:layout_marginTop="120dp"
+        android:layout_marginTop="100dp"
         android:layout_marginEnd="16dp"
         android:src="@drawable/heart_1"
         app:layout_constraintEnd_toEndOf="parent"
@@ -42,23 +52,15 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="30dp"
         android:layout_marginEnd="30dp"
-        android:layout_marginBottom="235dp"
+        android:layout_marginBottom="200dp"
         android:text="Xem cơ chế phản ứng của cơ thể bạn trong nhiều tình huống bằng cách đo nhịp tim sau khi tham gia  các hoạt động như tập thể dục hoặc sử dụng đồ  uống có cafein. Hoặc, lấy chỉ số đo vào buổi sáng để theo dõi nhịp tim lúc nghỉ ngơi."
         android:textAlignment="center"
+        android:textColor="#FDD835"
         android:textStyle="bold"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintStart_toStartOf="parent" />
-
-<!--    <Button-->
-<!--        android:id="@+id/button"-->
-<!--        android:layout_width="wrap_content"-->
-<!--        android:layout_height="wrap_content"-->
-<!--        android:layout_marginStart="26dp"-->
-<!--        android:layout_marginBottom="22dp"-->
-<!--        android:text="Hủy"-->
-<!--        app:layout_constraintBottom_toBottomOf="parent"-->
-<!--        app:layout_constraintStart_toStartOf="parent" />-->
 
     <Button
             android:id="@+id/nextButton"

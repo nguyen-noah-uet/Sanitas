@@ -1,6 +1,18 @@
 package com.example.sanitas.dataprocessing
 
-class StepMonitor {
+class StepMonitor private constructor() {
+    private object Holder { val INSTANCE = StepMonitor() }
+    companion object {
+        var stepCounter = 0
+        private fun increaseStepCounter() {
+            stepCounter++
+        }
+        @JvmStatic
+        fun getInstance(): StepMonitor{
+            return Holder.INSTANCE
+        }
+    }
+    private var onStepDetected: () -> Unit = {}
     private var dynamicThreshold = 0.06
     private var defaultThreshold = 0.06
     private var reductionRateValue = 0.01
@@ -16,8 +28,12 @@ class StepMonitor {
     private var rawAx = 0.0f
     private var rawAy = 0.0f
     private var rawAz = 0.0f
-    public var rawRoll = 0.0f
-    public var rawPitch = 0.0f
+    private var rawRoll = 0.0f
+    private var rawPitch = 0.0f
+
+    fun setOnStepDetectedCallback(onStepDetected: () -> Unit) {
+        this.onStepDetected = onStepDetected
+    }
     private fun updateThreshold() {
         if (va > dynamicThreshold) {
             // Update threshold if va is greater than the current threshold
@@ -75,6 +91,10 @@ class StepMonitor {
             stepCountFlag = false
             frameCount = 0
             updateThreshold()
+            increaseStepCounter()
+            if(onStepDetected != null) {
+                onStepDetected()
+            }
             return true
         } else if (va < 0) {
             stepCountFlag = true

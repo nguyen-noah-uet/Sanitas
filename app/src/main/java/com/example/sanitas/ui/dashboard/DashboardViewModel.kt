@@ -1,16 +1,15 @@
 package com.example.sanitas.ui.dashboard
 
-import android.hardware.Sensor
-import android.hardware.SensorEvent
-import android.hardware.SensorEventListener
-import android.hardware.SensorEventListener2
-import android.hardware.SensorManager
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import com.example.sanitas.dataprocessing.StepMonitor
 
 class DashboardViewModel() : ViewModel() {
 
-    private lateinit var sensorManager: SensorManager
+    private val _steps = MutableLiveData<Int>().apply {
+        value = StepMonitor.stepCounter
+    }
+    val steps: LiveData<Int> = _steps
 
 }
