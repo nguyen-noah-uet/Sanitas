@@ -10,7 +10,7 @@
     <string name="track_button">Track</string>
     <string name="stop_button">Stop</string>
     <string name="start">Bắt đầu</string>
-    <string name="stop">Stop</string>
+    <string name="stop">Dừng</string>
     <string name="waitingMeasurement">Vui lòng chờ. Quá trình đo có thể mất tới một phút.</string>
     <string name="heartbeatMeasure">Nhịp tim đo được:</string>
 </resources>

@@ -9,7 +9,10 @@ import androidx.navigation.NavDestination
 import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.setupWithNavController
+import androidx.work.OneTimeWorkRequestBuilder
+import androidx.work.WorkManager
 import com.example.sanitas.databinding.ActivityMainBinding
+import com.example.sanitas.workers.StepCounterWorker
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.here.sdk.core.engine.SDKNativeEngine
 import com.here.sdk.core.engine.SDKOptions
@@ -27,6 +30,8 @@ class MainActivity : AppCompatActivity() {
         supportActionBar?.hide()
 
         initializeHERESDK()
+        val workRequest = OneTimeWorkRequestBuilder<StepCounterWorker>().build()
+        WorkManager.getInstance(this).enqueue(workRequest)
 
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
