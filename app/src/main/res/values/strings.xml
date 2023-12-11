@@ -13,4 +13,12 @@
     <string name="stop">Dừng</string>
     <string name="waitingMeasurement">Vui lòng chờ. Quá trình đo có thể mất tới một phút.</string>
     <string name="heartbeatMeasure">Nhịp tim đo được:</string>
+    <string name="login">ĐĂNG NHẬP</string>
+    <string name="username_or_email">Tên đăng nhập hoặc email</string>
+    <string name="password">Mật khẩu</string>
+    <string name="logout">Đăng xuất</string>
+    <string name="register">ĐĂNG KÝ</string>
+    <string name="registerGuide">Vui lòng điền thông tin để tạo tài khoản</string>
+    <string name="passwordConfirm">Nhập lại mật khẩu</string>
+    <string name="address">Địa chỉ</string>
 </resources>

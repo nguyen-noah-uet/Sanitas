@@ -6,11 +6,16 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.example.sanitas.domain.position.PositioningProvider
+import com.example.sanitas.services.DefaultLocationClient
 import com.google.android.gms.location.LocationServices
 import com.here.sdk.core.GeoCoordinates
 import com.here.sdk.core.Location
 
 class PositioningViewModel : ViewModel() {
+    private val TAG = "PositioningViewModel"
+    init {
+        DefaultLocationClient.getInstance().setOnLocationChanged(::updateLocation)
+    }
 
     // New PositionProvider instance
     private var positioningProvider: PositioningProvider? = null
@@ -35,8 +40,8 @@ class PositioningViewModel : ViewModel() {
 
 
     fun setupProvider(context: Context) {
-        positioningProvider = PositioningProvider(context,
-            LocationServices.getFusedLocationProviderClient(context))
+        positioningProvider =
+            PositioningProvider(context, LocationServices.getFusedLocationProviderClient(context))
 
         positioningProvider!!.startLocating { updateLocation(it) }
     }
@@ -55,12 +60,12 @@ class PositioningViewModel : ViewModel() {
     // Callback trigger when new location update
     // Need to pass as an argument to PositioningListener
     private fun updateLocation(new: android.location.Location) {
-        Log.e("T", "Tracking: $isTracking")
-        _location.value = convertLocation(new)
-        if (isTracking) {
-            _tracked.value?.add(convertLocation(new).coordinates)
-            _tracked.value = _tracked.value
-        }
+        Log.i(TAG, "Tracking: $isTracking")
+        val convertedLocation = convertLocation(new)
+        _location.value = convertedLocation
+        tracked.value?.add(convertedLocation.coordinates)
+//        _tracked.value = _tracked.value
+        Log.i(TAG, "${_tracked.value?.size}")
     }
 
 
