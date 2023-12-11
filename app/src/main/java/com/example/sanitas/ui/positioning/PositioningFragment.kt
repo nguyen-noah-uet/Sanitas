@@ -1,14 +1,17 @@
 package com.example.sanitas.ui.positioning
 
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.app.ActivityCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import com.example.sanitas.R
 import com.example.sanitas.databinding.FragmentPositioningBinding
+import com.example.sanitas.services.LocationService
 import com.here.sdk.core.Color
 import com.here.sdk.core.GeoCoordinates
 import com.here.sdk.core.GeoPolyline
@@ -22,8 +25,9 @@ import com.here.sdk.mapview.MapScheme
 import com.here.sdk.mapview.MapView
 
 
+@Suppress("DEPRECATION")
 class PositioningFragment : Fragment() {
-
+    private val TAG = "PositioningFragment"
     private var _binding: FragmentPositioningBinding? = null
     private val binding get() = _binding!!
 
@@ -31,7 +35,7 @@ class PositioningFragment : Fragment() {
     private lateinit var mapView: MapView
     private var currentLocationMarker: MapMarker? = null
     private var displayPolyline: MapPolyline? = null
-
+    private var isTracking = false
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -47,12 +51,12 @@ class PositioningFragment : Fragment() {
         val positioningViewModel =
             ViewModelProvider(this)[PositioningViewModel::class.java]
 
-        positioningViewModel.setupProvider(requireContext())
+//        positioningViewModel.setupProvider(requireContext())
         positioningViewModel.location.observe(viewLifecycleOwner) {
             updateLocationMarker(it)
         }
-        positioningViewModel.tracked.observe(viewLifecycleOwner) {
-            updateMapPolyline(it)
+        positioningViewModel.tracked.observe(viewLifecycleOwner) { coordinates ->
+            updateMapPolyline(coordinates)
         }
 
         // MapView init
@@ -62,15 +66,36 @@ class PositioningFragment : Fragment() {
 
         // Handle track button click
         val trackBtn = binding.trackButton
+        if (LocationService.isTracking) {
+            trackBtn.text = "Stop"
+        } else {
+            trackBtn.text = "Track"
+        }
         trackBtn.setOnClickListener {
-            if (trackBtn.text.equals("Track")) {
-                trackBtn.text = getString(R.string.stop_button)
-                trackBtn.setBackgroundColor(android.graphics.Color.YELLOW)
-            } else {
-                trackBtn.text = getString(R.string.track_button)
-                trackBtn.setBackgroundColor(android.graphics.Color.BLUE)
+//            if (trackBtn.text.equals("Track")) {
+//                trackBtn.text = getString(R.string.stop_button)
+//                trackBtn.setBackgroundColor(android.graphics.Color.YELLOW)
+//            } else {
+//                trackBtn.text = getString(R.string.track_button)
+//                trackBtn.setBackgroundColor(android.graphics.Color.BLUE)
+//            }
+
+            if (!LocationService.isTracking) {
+                trackBtn.text = "Stop"
+                ActivityCompat.requestPermissions(requireActivity(),
+                    arrayOf(android.Manifest.permission.ACCESS_COARSE_LOCATION, android.Manifest.permission.ACCESS_FINE_LOCATION), 1)
+                requireActivity().startService(Intent(context, LocationService::class.java).apply {
+                    action = LocationService.ACTION_START
+                })
             }
-            positioningViewModel.switchTracking()
+            else{
+                trackBtn.text = "Track"
+                requireActivity().startService(Intent(context, LocationService::class.java).apply {
+                    action = LocationService.ACTION_STOP
+                })
+            }
+            LocationService.isTracking = !LocationService.isTracking
+//            positioningViewModel.switchTracking()
         }
 
         loadMapScene()
@@ -118,29 +143,30 @@ class PositioningFragment : Fragment() {
                 mapView.mapScene.addMapMarker(currentLocationMarker!!)
             }
         }
-        if (location != null) {
+        else if (location != null) {
             currentLocationMarker!!.coordinates = location.coordinates
+            mapView.camera.lookAt(
+                location.coordinates,
+                MapMeasure(MapMeasure.Kind.DISTANCE, (1000 * 3).toDouble())
+            )
         }
     }
 
 
-    private fun updateMapPolyline(line: ArrayList<GeoCoordinates>) {
-        val geoPolyline: GeoPolyline
-
-        Log.e("LOG1", "<- update polyline")
+    private fun updateMapPolyline(coordinates: ArrayList<GeoCoordinates>) {
         try {
-            geoPolyline = GeoPolyline(line)
+            val geoPolyline = GeoPolyline(coordinates)
+            Log.i(TAG, "-> init geoPolyline success")
+            val widthInPixel = 20.0
+            val lineColor = Color.valueOf(0f, 0.56f, 0.54f, 0.63f) //RGBA
+
+            displayPolyline?.let { mapView.mapScene.removeMapPolyline(it) }
+            displayPolyline = MapPolyline(geoPolyline, widthInPixel, lineColor)
+            mapView.mapScene.addMapPolyline(displayPolyline!!)
         } catch (exception: InstantiationErrorException) {
-            Log.e("EXC", exception.toString())
+            exception.printStackTrace()
             return
         }
 
-        Log.e("LOG2", "-> init geoPolyline success")
-        val widthInPixel = 20.0
-        val lineColor = Color.valueOf(0f, 0.56f, 0.54f, 0.63f) //RGBA
-
-        displayPolyline?.let { mapView.mapScene.removeMapPolyline(it) }
-        displayPolyline = MapPolyline(geoPolyline, widthInPixel, lineColor)
-        mapView.mapScene.addMapPolyline(displayPolyline!!)
     }
 }

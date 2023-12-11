@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.util.Log
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.ActivityCompat
 import androidx.navigation.NavDestination
 import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
@@ -12,7 +13,9 @@ import androidx.navigation.ui.setupWithNavController
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
 import com.example.sanitas.databinding.ActivityMainBinding
+import com.example.sanitas.services.DefaultLocationClient
 import com.example.sanitas.workers.StepCounterWorker
+import com.google.android.gms.location.LocationServices
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.here.sdk.core.engine.SDKNativeEngine
 import com.here.sdk.core.engine.SDKOptions
@@ -28,7 +31,7 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         supportActionBar?.hide()
-
+        ActivityCompat.requestPermissions(this, arrayOf(android.Manifest.permission.POST_NOTIFICATIONS), 1)
         initializeHERESDK()
         val workRequest = OneTimeWorkRequestBuilder<StepCounterWorker>().build()
         WorkManager.getInstance(this).enqueue(workRequest)
@@ -63,6 +66,9 @@ class MainActivity : AppCompatActivity() {
             }
             Log.i("MainActivity", navView.visibility.toString())
         }
+        DefaultLocationClient.createClient(
+            applicationContext,
+            LocationServices.getFusedLocationProviderClient(applicationContext))
     }
 
 
