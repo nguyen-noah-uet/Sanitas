@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * SPDX-License-Identifier: Apache-2.0
+ * SPD-License-Identifier: Apache-2.0
  * License-Filename: LICENSE
  */
 package com.example.sanitas
@@ -29,7 +29,7 @@ import androidx.core.content.ContextCompat
 /**
  * Convenience class to request the Android permissions as defined by manifest.
  */
-class PermissionsRequestor(private val activity: Activity) {
+class PermissionsRequester(private val activity: Activity) {
     private var resultListener: ResultListener? = null
 
     interface ResultListener {
@@ -40,7 +40,7 @@ class PermissionsRequestor(private val activity: Activity) {
     fun request(resultListener: ResultListener) {
         this.resultListener = resultListener
         val missingPermissions = permissionsToRequest
-        if (missingPermissions.size == 0) {
+        if (missingPermissions.isEmpty()) {
             resultListener.permissionsGranted()
         } else {
             ActivityCompat.requestPermissions(
@@ -51,14 +51,12 @@ class PermissionsRequestor(private val activity: Activity) {
         }
     }
 
-    @get:Suppress("deprecation")
     private val permissionsToRequest: Array<String>
-        private get() {
+        get() {
             val permissionList = ArrayList<String>()
             try {
                 val packageName = activity.packageName
-                val packageInfo: PackageInfo
-                packageInfo = if (Build.VERSION.SDK_INT >= 33) {
+                val packageInfo: PackageInfo = if (Build.VERSION.SDK_INT >= 33) {
                     activity.packageManager.getPackageInfo(
                         packageName,
                         PackageManager.PackageInfoFlags.of(PackageManager.GET_PERMISSIONS.toLong())
@@ -98,7 +96,7 @@ class PermissionsRequestor(private val activity: Activity) {
         if (resultListener == null) {
             return
         }
-        if (grantResults.size == 0) {
+        if (grantResults.isEmpty()) {
             // Request was cancelled.
             return
         }

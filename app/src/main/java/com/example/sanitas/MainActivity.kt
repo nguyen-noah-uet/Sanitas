@@ -1,9 +1,11 @@
 package com.example.sanitas
 
 import android.content.Context
+import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.view.View
+import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.navigation.NavDestination
@@ -13,9 +15,7 @@ import androidx.navigation.ui.setupWithNavController
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
 import com.example.sanitas.databinding.ActivityMainBinding
-import com.example.sanitas.services.DefaultLocationClient
 import com.example.sanitas.workers.StepCounterWorker
-import com.google.android.gms.location.LocationServices
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.here.sdk.core.engine.SDKNativeEngine
 import com.here.sdk.core.engine.SDKOptions
@@ -26,8 +26,9 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
     private lateinit var navView: BottomNavigationView
-    private lateinit var permissionsRequestor: PermissionsRequestor
+    private lateinit var permissionsRequester: PermissionsRequester
 
+    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         supportActionBar?.hide()
@@ -66,15 +67,13 @@ class MainActivity : AppCompatActivity() {
             }
             Log.i("MainActivity", navView.visibility.toString())
         }
-        DefaultLocationClient.createClient(
-            applicationContext,
-            LocationServices.getFusedLocationProviderClient(applicationContext))
+
     }
 
 
     private fun handleAndroidPermissions() {
-        permissionsRequestor = PermissionsRequestor(this)
-        permissionsRequestor.request(object : PermissionsRequestor.ResultListener {
+        permissionsRequester = PermissionsRequester(this)
+        permissionsRequester.request(object : PermissionsRequester.ResultListener {
             override fun permissionsGranted() {
                 // Do something
             }
