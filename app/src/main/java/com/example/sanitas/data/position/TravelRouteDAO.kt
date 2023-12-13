@@ -1,6 +1,5 @@
 package com.example.sanitas.data.position
 
-import android.location.Location
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
@@ -8,9 +7,13 @@ import androidx.room.Query
 
 @Dao
 interface TravelRouteDAO {
-    @Query("SELECT location FROM travel_route WHERE routeId = routeID")
-    suspend fun fetchRouteByRouteID(routeID: Int): ArrayList<Location>
+    @Query("SELECT lat, long FROM travel_route WHERE routeId = :routeID ORDER BY ordering")
+    suspend fun fetchRouteByRouteID(routeID: Int): List<CoordinateTuple>
+
+    @Query("SELECT MAX(routeId) FROM travel_route")
+    suspend fun getMaxRouteId(): Int?
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)
-    suspend fun insertLocationForRoute()
+    suspend fun insertTravelRoute(travelRoute: TravelRoute)
 }
+

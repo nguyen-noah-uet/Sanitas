@@ -7,8 +7,10 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProvider
 import com.example.sanitas.R
+import com.example.sanitas.SanitasApp
 import com.example.sanitas.databinding.FragmentPositioningBinding
 import com.example.sanitas.services.LocationService
 import com.here.sdk.core.Color
@@ -30,10 +32,16 @@ class PositioningFragment : Fragment() {
     private var _binding: FragmentPositioningBinding? = null
     private val binding get() = _binding!!
 
+    private val positioningViewModel: PositioningViewModel by viewModels {
+        PositioningViewModelFactory((activity?.application as SanitasApp).travelRouteRepository)
+    }
+
+
     // UI related properties
     private lateinit var mapView: MapView
     private var currentLocationMarker: MapMarker? = null
     private var displayPolyline: MapPolyline? = null
+    private var historyTravelPolyline: MapPolyline? = null
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -44,10 +52,6 @@ class PositioningFragment : Fragment() {
         _binding = FragmentPositioningBinding.inflate(inflater, container, false)
         val root: View = binding.root
 
-
-        // ViewModel operations
-        val positioningViewModel =
-            ViewModelProvider(this)[PositioningViewModel::class.java]
 
         positioningViewModel.startLocation(requireContext(), this.requireActivity())
 
@@ -66,7 +70,6 @@ class PositioningFragment : Fragment() {
 
         // Handle track button click
         val trackBtn = binding.trackButton
-
         trackBtn.setOnClickListener {
             if (trackBtn.text.equals(getString(R.string.track_button))) {
                 trackBtn.text = getString(R.string.stop_button)
@@ -76,6 +79,11 @@ class PositioningFragment : Fragment() {
                 trackBtn.setBackgroundColor(android.graphics.Color.BLUE)
             }
             positioningViewModel.switchTracking()
+        }
+
+        val historyBtn = binding.historyButton
+        historyBtn.setOnClickListener {
+            positioningViewModel.loadHistoryTravelRouteById(0)
         }
 
         loadMapScene()
