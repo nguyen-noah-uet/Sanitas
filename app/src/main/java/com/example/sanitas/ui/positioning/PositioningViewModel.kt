@@ -1,24 +1,16 @@
 package com.example.sanitas.ui.positioning
 
+import android.app.Activity
 import android.content.Context
-import android.util.Log
+import android.content.Intent
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.example.sanitas.domain.position.PositioningProvider
-import com.example.sanitas.services.DefaultLocationClient
-import com.google.android.gms.location.LocationServices
+import com.example.sanitas.services.LocationService
 import com.here.sdk.core.GeoCoordinates
 import com.here.sdk.core.Location
 
 class PositioningViewModel : ViewModel() {
-    private val TAG = "PositioningViewModel"
-    init {
-        DefaultLocationClient.getInstance().setOnLocationChanged(::updateLocation)
-    }
-
-    // New PositionProvider instance
-    private var positioningProvider: PositioningProvider? = null
 
     // Enable/Disable tracking location indicator
     private var isTracking: Boolean = false
@@ -39,13 +31,12 @@ class PositioningViewModel : ViewModel() {
     val tracked: LiveData<ArrayList<GeoCoordinates>> = _tracked
 
 
-    fun setupProvider(context: Context) {
-        positioningProvider =
-            PositioningProvider(context, LocationServices.getFusedLocationProviderClient(context))
-
-        positioningProvider!!.startLocating { updateLocation(it) }
+    fun startLocation(context: Context, activity: Activity) {
+        LocationService.updateCallback = { updateLocation(it) }
+        activity.startService(Intent(context, LocationService::class.java).apply {
+            action = LocationService.ACTION_START
+        })
     }
-
 
     fun switchTracking() {
         isTracking = !isTracking
@@ -58,34 +49,13 @@ class PositioningViewModel : ViewModel() {
 
 
     // Callback trigger when new location update
-    // Need to pass as an argument to PositioningListener
-    private fun updateLocation(new: android.location.Location) {
-        Log.i(TAG, "Tracking: $isTracking")
-        val convertedLocation = convertLocation(new)
-        _location.value = convertedLocation
-        tracked.value?.add(convertedLocation.coordinates)
-//        _tracked.value = _tracked.value
-        Log.i(TAG, "${_tracked.value?.size}")
+    // Need to pass as an parameter to LocationService
+    private fun updateLocation(new: Location) {
+        _location.postValue(new)
+        if (isTracking) {
+            _tracked.value?.add(new.coordinates)
+            _tracked.postValue(_tracked.value)
+        }
     }
 
-
-    // Convert from android.location.Location to HERE SDK Location
-    private fun convertLocation(nativeLocation: android.location.Location): Location {
-        val geoCoordinates = GeoCoordinates(
-            nativeLocation.latitude,
-            nativeLocation.longitude,
-            nativeLocation.altitude
-        )
-        val location = Location(geoCoordinates)
-        if (nativeLocation.hasBearing()) {
-            location.bearingInDegrees = nativeLocation.bearing.toDouble()
-        }
-        if (nativeLocation.hasSpeed()) {
-            location.speedInMetersPerSecond = nativeLocation.speed.toDouble()
-        }
-        if (nativeLocation.hasAccuracy()) {
-            location.horizontalAccuracyInMeters = nativeLocation.accuracy.toDouble()
-        }
-        return location
-    }
 }
