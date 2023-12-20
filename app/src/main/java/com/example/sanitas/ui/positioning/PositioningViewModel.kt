@@ -3,23 +3,27 @@ package com.example.sanitas.ui.positioning
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
-import android.util.Log
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
+import com.example.sanitas.data.position.CoordinateTuple
 import com.example.sanitas.data.position.TravelRoute
 import com.example.sanitas.repositories.TravelRouteRepository
 import com.example.sanitas.services.LocationService
 import com.here.sdk.core.GeoCoordinates
 import com.here.sdk.core.Location
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import java.time.LocalDateTime
 
 class PositioningViewModel(private val repository: TravelRouteRepository) : ViewModel() {
 
     // Enable/Disable tracking location indicator
-    private var isTracking: Boolean = false
+    private var isTracking = false
     private var currentRouteId: Int? = 0
     private var routeOrder = 0
 
@@ -45,10 +49,11 @@ class PositioningViewModel(private val repository: TravelRouteRepository) : View
         })
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     fun switchTracking() = viewModelScope.launch {
         if (isTracking) {
             isTracking = false
-            Log.e("NULL", "DM AO THAT DAY")
+
             currentRouteId = repository.getLocalMaxRouteId()
             routeOrder = 0
 
@@ -61,7 +66,8 @@ class PositioningViewModel(private val repository: TravelRouteRepository) : View
                     routeId = currentRouteId!!,
                     ordering = routeOrder,
                     latitude = it.latitude,
-                    longitude = it.longitude
+                    longitude = it.longitude,
+                    date = LocalDateTime.now()
                 )
                 repository.insertLocalRouteLocation(newTravelRoute)
                 routeOrder++
@@ -76,13 +82,20 @@ class PositioningViewModel(private val repository: TravelRouteRepository) : View
     }
 
 
-    fun loadHistoryTravelRouteById(id: Int) = viewModelScope.launch {
-        _tracked.value?.clear()
-        val fetchedData = repository.fetchLocalTravelRouteById(id)
-        fetchedData.forEach {
-            _tracked.value?.add(GeoCoordinates(it.latitude, it.longitude))
+    // Query function to fetch travel route by date from local database
+    @RequiresApi(Build.VERSION_CODES.O)
+    fun loadHistoryTravelRouteByDate(date: LocalDateTime) = viewModelScope.launch {
+        val fetchedData = repository.fetchLocalTravelRouteByDate(date, date.plusDays(1))
+        val routes = fetchedData.groupBy { it.routeId }.map { it.value }
+
+        for (route: List<CoordinateTuple> in routes) {
+            _tracked.value?.clear()
+            route.forEach {
+                _tracked.value?.add(GeoCoordinates(it.latitude, it.longitude))
+            }
+            _tracked.postValue(_tracked.value)
+            delay(60)
         }
-        _tracked.postValue(_tracked.value)
     }
 
 
@@ -98,7 +111,8 @@ class PositioningViewModel(private val repository: TravelRouteRepository) : View
 }
 
 
-class PositioningViewModelFactory(private val repository: TravelRouteRepository) : ViewModelProvider.Factory {
+class PositioningViewModelFactory(private val repository: TravelRouteRepository) :
+    ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         if (modelClass.isAssignableFrom(PositioningViewModel::class.java)) {
             @Suppress("UNCHECKED_CAST")

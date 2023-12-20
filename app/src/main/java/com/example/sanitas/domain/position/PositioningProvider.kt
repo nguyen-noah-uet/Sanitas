@@ -7,15 +7,11 @@ import androidx.core.content.ContextCompat
 import android.Manifest
 import android.location.Location
 import android.os.Looper
-import android.widget.Toast
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationCallback
 import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationResult
 import com.google.android.gms.location.Priority
-import com.google.android.gms.tasks.CancellationToken
-import com.google.android.gms.tasks.CancellationTokenSource
-import com.google.android.gms.tasks.OnTokenCanceledListener
 import com.here.sdk.core.GeoCoordinates
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
@@ -26,29 +22,6 @@ class PositioningProvider(
     private val context: Context,
     private val fusedLocationClient: FusedLocationProviderClient
 ) {
-
-    private lateinit var locationCallback: LocationCallback
-
-    fun getCurrentLocation(func: (Location) -> Unit) {
-        if (!(ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED
-                    && ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED))
-        {
-            throw RuntimeException("Permission Denied!")
-        }
-
-        fusedLocationClient.getCurrentLocation(Priority.PRIORITY_HIGH_ACCURACY, object : CancellationToken() {
-            override fun onCanceledRequested(p0: OnTokenCanceledListener) = CancellationTokenSource().token
-
-            override fun isCancellationRequested() = false
-        })
-            .addOnSuccessListener { location: Location? ->
-                if (location == null)
-                    Toast.makeText(context, "Cannot get location.", Toast.LENGTH_SHORT).show()
-                else {
-                    func(location)
-                }
-            }
-    }
 
     fun startLocating(): Flow<com.here.sdk.core.Location> {
         return callbackFlow {
@@ -95,10 +68,6 @@ class PositioningProvider(
                 fusedLocationClient.removeLocationUpdates(locationCallback)
             }
         }
-    }
-
-    fun stopLocating() {
-        fusedLocationClient.removeLocationUpdates(locationCallback)
     }
 
 

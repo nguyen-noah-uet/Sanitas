@@ -25,9 +25,9 @@
         android:id="@+id/history_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:background="#45ADB1"
-        android:text="@string/history_button"
-        android:textSize="12sp"
+        android:background="#FFFFFF"
+        app:cornerRadius="10sp"
+        app:icon="@android:drawable/ic_menu_agenda"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
