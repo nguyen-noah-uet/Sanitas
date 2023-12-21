@@ -22,4 +22,5 @@
     <string name="passwordConfirm">Nhập lại mật khẩu</string>
     <string name="address">Địa chỉ</string>
     <string name="history_button">History</string>
+    <string name="trackBtnBack">Back</string>
 </resources>

@@ -1,29 +1,32 @@
 package com.example.sanitas.ui.positioning
 
 import android.content.Intent
+import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Button
+import androidx.annotation.RequiresApi
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.ViewModelProvider
 import com.example.sanitas.R
 import com.example.sanitas.SanitasApp
 import com.example.sanitas.databinding.FragmentPositioningBinding
 import com.example.sanitas.services.LocationService
+import com.example.sanitas.ui.pickers.DatePickerFragment
 import com.here.sdk.core.Color
 import com.here.sdk.core.GeoCoordinates
 import com.here.sdk.core.GeoPolyline
 import com.here.sdk.core.Location
-import com.here.sdk.core.errors.InstantiationErrorException
 import com.here.sdk.mapview.MapImageFactory
 import com.here.sdk.mapview.MapMarker
 import com.here.sdk.mapview.MapMeasure
 import com.here.sdk.mapview.MapPolyline
 import com.here.sdk.mapview.MapScheme
 import com.here.sdk.mapview.MapView
+import java.time.LocalDateTime
 
 
 @Suppress("DEPRECATION")
@@ -36,13 +39,22 @@ class PositioningFragment : Fragment() {
         PositioningViewModelFactory((activity?.application as SanitasApp).travelRouteRepository)
     }
 
+    // Handle multiple fragment states
+    enum class State {
+        TRACKING, STOPPING, HISTORY
+    }
+
+    private var state = State.STOPPING
+
 
     // UI related properties
     private lateinit var mapView: MapView
     private var currentLocationMarker: MapMarker? = null
-    private var displayPolyline: MapPolyline? = null
-    private var historyTravelPolyline: MapPolyline? = null
+    private var displayPolylines = mutableListOf<MapPolyline>()
 
+    private lateinit var trackBtn: Button
+
+    @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -68,22 +80,44 @@ class PositioningFragment : Fragment() {
         mapView.onCreate(savedInstanceState)
 
 
-        // Handle track button click
-        val trackBtn = binding.trackButton
-        trackBtn.setOnClickListener {
-            if (trackBtn.text.equals(getString(R.string.track_button))) {
-                trackBtn.text = getString(R.string.stop_button)
-                trackBtn.setBackgroundColor(android.graphics.Color.YELLOW)
-            } else {
-                trackBtn.text = getString(R.string.track_button)
-                trackBtn.setBackgroundColor(android.graphics.Color.BLUE)
-            }
-            positioningViewModel.switchTracking()
-        }
-
         val historyBtn = binding.historyButton
         historyBtn.setOnClickListener {
-            positioningViewModel.loadHistoryTravelRouteById(0)
+            // DatePickerFragment -> onDateSet -> set datePicked -> positioningViewModel.loadHistoryTravelRouteById
+            // -> update _tracked -> update historyTravelPolyline -> add historyTravelPolyline to mapView
+            val datePickerFragment = DatePickerFragment { y: Int, m: Int, d: Int ->
+                datePicked(y, m, d)
+            }
+            datePickerFragment.show(requireActivity().supportFragmentManager, "datePicker")
+        }
+
+        // Handle track button click
+        trackBtn = binding.trackButton
+        trackBtn.setOnClickListener {
+            mapView.mapScene.removeMapPolylines(displayPolylines)
+            when (state) {
+                State.TRACKING -> {
+                    trackBtn.text = getString(R.string.track_button)
+                    trackBtn.setBackgroundColor(android.graphics.Color.BLUE)
+                    historyBtn.isEnabled = true
+                    state = State.STOPPING
+                    positioningViewModel.switchTracking()
+                }
+
+                State.STOPPING -> {
+                    trackBtn.text = getString(R.string.stop_button)
+                    trackBtn.setBackgroundColor(android.graphics.Color.YELLOW)
+                    historyBtn.isEnabled = false
+                    state = State.TRACKING
+                    positioningViewModel.switchTracking()
+                }
+
+                State.HISTORY -> {
+                    trackBtn.text = getString(R.string.track_button)
+                    trackBtn.setBackgroundColor(android.graphics.Color.BLUE)
+                    historyBtn.isEnabled = true
+                    state = State.STOPPING
+                }
+            }
         }
 
         loadMapScene()
@@ -124,6 +158,18 @@ class PositioningFragment : Fragment() {
     }
 
 
+    @RequiresApi(Build.VERSION_CODES.O)
+    private fun datePicked(year: Int, month: Int, day: Int) {
+        state = State.HISTORY
+        val date = LocalDateTime.of(year, month, day, 0, 1, 0)
+        positioningViewModel.loadHistoryTravelRouteByDate(date)
+
+        // disable tracking
+        trackBtn.text = getString(R.string.trackBtnBack)
+        trackBtn.setBackgroundColor(android.graphics.Color.RED)
+    }
+
+
     private fun updateLocationMarker(location: Location?) {
         if (currentLocationMarker == null) {
             if (location != null) {
@@ -133,28 +179,28 @@ class PositioningFragment : Fragment() {
                 )
                 mapView.mapScene.addMapMarker(currentLocationMarker!!)
             }
-        }
-        else if (location != null) {
+        } else if (location != null) {
             currentLocationMarker!!.coordinates = location.coordinates
         }
     }
 
 
     private fun updateMapPolyline(line: ArrayList<GeoCoordinates>) {
-        val geoPolyline: GeoPolyline
+        val widthInPixels = 20.0
+        val lineColor = Color.valueOf(0f, 0.56f, 0.54f, 0.63f)
 
-        try {
-            geoPolyline = GeoPolyline(line)
-        } catch (exception: InstantiationErrorException) {
-            Log.e("EXC", exception.toString())
-            return
+        if (state == State.HISTORY) {
+            val mapPolyline = MapPolyline(GeoPolyline(line), widthInPixels, lineColor)
+            displayPolylines.add(mapPolyline)
+            mapView.mapScene.addMapPolylines(displayPolylines)
+        } else {
+            mapView.mapScene.removeMapPolylines(displayPolylines)
+            if (line.size >= 2) {
+                val mapPolyline = MapPolyline(GeoPolyline(line), widthInPixels, lineColor)
+                displayPolylines.clear()
+                displayPolylines.add(mapPolyline)
+                mapView.mapScene.addMapPolylines(displayPolylines)
+            }
         }
-
-        val widthInPixel = 20.0
-        val lineColor = Color.valueOf(0f, 0.56f, 0.54f, 0.63f) //RGBA
-
-        displayPolyline?.let { mapView.mapScene.removeMapPolyline(it) }
-        displayPolyline = MapPolyline(geoPolyline, widthInPixel, lineColor)
-        mapView.mapScene.addMapPolyline(displayPolyline!!)
     }
 }

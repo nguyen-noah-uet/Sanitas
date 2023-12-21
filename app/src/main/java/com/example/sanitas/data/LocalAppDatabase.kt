@@ -1,17 +1,23 @@
 package com.example.sanitas.data
 
 import android.content.Context
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverter
+import androidx.room.TypeConverters
 import com.example.sanitas.data.position.TravelRoute
 import com.example.sanitas.data.position.TravelRouteDAO
-import com.here.sdk.core.GeoCoordinates
-import kotlinx.coroutines.CoroutineScope
+import java.time.Instant
+import java.time.LocalDateTime
+import java.time.ZoneId
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Database(entities = [TravelRoute::class], version = 1, exportSchema = false)
-public abstract class LocalAppDatabase : RoomDatabase() {
+@TypeConverters(Converters::class)
+abstract class LocalAppDatabase : RoomDatabase() {
     abstract fun travelRouteDao(): TravelRouteDAO
 
     companion object {
@@ -34,5 +40,19 @@ public abstract class LocalAppDatabase : RoomDatabase() {
                 instance
             }
         }
+    }
+}
+
+@RequiresApi(Build.VERSION_CODES.O)
+class Converters {
+    @TypeConverter
+    fun fromLong(value: Long): LocalDateTime {
+        return LocalDateTime.ofInstant(Instant.ofEpochMilli(value), ZoneId.systemDefault())
+    }
+
+
+    @TypeConverter
+    fun toLong(date: LocalDateTime): Long {
+        return date.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()
     }
 }
