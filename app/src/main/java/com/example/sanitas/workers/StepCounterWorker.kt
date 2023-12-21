@@ -20,14 +20,14 @@ class StepCounterWorker(context: Context, workerParams: WorkerParameters) :
             this,
             accSensor,
             SensorManager.SENSOR_DELAY_GAME,
-            SensorManager.SENSOR_DELAY_FASTEST
+//            SensorManager.SENSOR_DELAY_FASTEST
         )
         val gyroSensor = sensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE)
         sensorManager.registerListener(
             this,
             gyroSensor,
             SensorManager.SENSOR_DELAY_GAME,
-            SensorManager.SENSOR_DELAY_FASTEST
+//            SensorManager.SENSOR_DELAY_FASTEST
         )
         Log.i(TAG, "StepCounterWorker: Registered")
     }
@@ -38,13 +38,13 @@ class StepCounterWorker(context: Context, workerParams: WorkerParameters) :
             val y = sensorEvent.values[1]
             val z = sensorEvent.values[2]
             stepMonitor.setAccelerometer(x, y, z)
+            if (stepMonitor.detectStep()) {
+                Log.i(TAG, String.format("Step %d", StepMonitor.stepCounter))
+            }
         } else if (sensorEvent.sensor.type == Sensor.TYPE_GYROSCOPE) {
             val raw = sensorEvent.values[0]
             val pitch = sensorEvent.values[1]
             stepMonitor.setGyro(raw, pitch)
-        }
-        if (stepMonitor.detectStep()) {
-            Log.i(TAG, String.format("Step %d", StepMonitor.stepCounter))
         }
     }
 
