@@ -53,8 +53,9 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="21dp"
-                    android:text="Test"
+                    android:text="Nguyễn Văn A"
                     android:textAlignment="center"
+                    android:textColor="#FF9800"
                     android:textSize="20sp"
                     android:textStyle="bold"
                     app:layout_constraintEnd_toEndOf="@+id/imageView6"
@@ -66,8 +67,8 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
-                    android:text="Test"
-                    android:textColor="#0E0E0E"
+                    android:text="Id: 12345"
+                    android:textColor="#FF9800"
                     app:layout_constraintEnd_toEndOf="@+id/textView12"
                     app:layout_constraintStart_toStartOf="@+id/textView12"
                     app:layout_constraintTop_toBottomOf="@+id/textView12" />
@@ -109,7 +110,7 @@
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
                             android:text="Mật khẩu: "
-                            android:textColor="#182693"
+                            android:textColor="#FF9800"
                             android:textSize="18sp" />
 
                         <TextView
@@ -143,7 +144,7 @@
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
                             android:text="@string/address"
-                            android:textColor="#182693"
+                            android:textColor="#FF9800"
                             android:textSize="18sp" />
 
                         <TextView
@@ -177,7 +178,7 @@
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
                             android:text="PostalCode"
-                            android:textColor="#182693"
+                            android:textColor="#FF9800"
                             android:textSize="18sp" />
 
                         <TextView
@@ -194,12 +195,14 @@
 
                 </LinearLayout>
             </androidx.constraintlayout.widget.ConstraintLayout>
+
             <Button
                 android:id="@+id/logoutButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="20dp"
-                android:text="@string/logout"/>
+                android:backgroundTint="#FF9800"
+                android:text="@string/logout" />
         </LinearLayout>
 
     </ScrollView>
