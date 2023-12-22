@@ -15,7 +15,7 @@
         android:layout_marginEnd="8dp"
         android:text="Đo nhịp tim bằng máy ảnh trên điện thoại"
         android:textAlignment="center"
-        android:textColor="#FF6D00"
+        android:textColor="#FF5722"
         android:textSize="20sp"
         android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="parent"
@@ -55,7 +55,7 @@
         android:layout_marginBottom="200dp"
         android:text="Xem cơ chế phản ứng của cơ thể bạn trong nhiều tình huống bằng cách đo nhịp tim sau khi tham gia  các hoạt động như tập thể dục hoặc sử dụng đồ  uống có cafein. Hoặc, lấy chỉ số đo vào buổi sáng để theo dõi nhịp tim lúc nghỉ ngơi."
         android:textAlignment="center"
-        android:textColor="#FDD835"
+        android:textColor="#FF9800"
         android:textStyle="bold"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -63,12 +63,13 @@
         app:layout_constraintStart_toStartOf="parent" />
 
     <Button
-            android:id="@+id/nextButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginEnd="28dp"
-            android:layout_marginBottom="88dp"
-            android:text="Tiêp Theo"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"/>
+        android:id="@+id/nextButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="28dp"
+        android:layout_marginBottom="88dp"
+        android:backgroundTint="#FF9800"
+        android:text="Tiêp Theo"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
 </androidx.constraintlayout.widget.ConstraintLayout>
