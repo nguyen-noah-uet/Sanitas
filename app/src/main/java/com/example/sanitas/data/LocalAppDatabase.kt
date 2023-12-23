@@ -10,15 +10,19 @@ import androidx.room.TypeConverter
 import androidx.room.TypeConverters
 import com.example.sanitas.data.position.TravelRoute
 import com.example.sanitas.data.position.TravelRouteDAO
+import com.example.sanitas.data.step.Steps
+import com.example.sanitas.data.step.StepsDAO
 import java.time.Instant
+import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.ZoneId
 
 @RequiresApi(Build.VERSION_CODES.O)
-@Database(entities = [TravelRoute::class], version = 1, exportSchema = false)
+@Database(entities = [TravelRoute::class, Steps::class], version = 1, exportSchema = false)
 @TypeConverters(Converters::class)
 abstract class LocalAppDatabase : RoomDatabase() {
     abstract fun travelRouteDao(): TravelRouteDAO
+    abstract fun stepsDao(): StepsDAO
 
     companion object {
         // Singleton prevents multiple instances of database opening at the
@@ -54,5 +58,17 @@ class Converters {
     @TypeConverter
     fun toLong(date: LocalDateTime): Long {
         return date.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()
+    }
+
+
+    @TypeConverter
+    fun fromLongToLocalDate(value: Long): LocalDate {
+        return Instant.ofEpochMilli(value).atZone(ZoneId.systemDefault()).toLocalDate()
+    }
+
+
+    @TypeConverter
+    fun fromLocalDateToLong(value: LocalDate): Long {
+        return value.atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli()
     }
 }

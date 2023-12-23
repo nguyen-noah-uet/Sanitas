@@ -112,6 +112,7 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+
     override fun onDestroy() {
         disposeHERESDK()
         super.onDestroy()
