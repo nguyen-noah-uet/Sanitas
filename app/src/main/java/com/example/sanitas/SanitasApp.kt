@@ -5,11 +5,19 @@ import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.Context
 import android.os.Build
+import androidx.annotation.RequiresApi
 import com.example.sanitas.data.LocalAppDatabase
 import com.example.sanitas.repositories.TravelRouteRepository
 
+@RequiresApi(Build.VERSION_CODES.O)
 class SanitasApp: Application() {
-
+    companion object {
+        var userDisplayName: String? = null
+        var userEmail: String? = null
+        var userPhotoUrl: String? = null
+        var measuredHeartBeat = 0.0
+        var currentSteps = 0
+    }
     private val database by lazy { LocalAppDatabase.getDatabase(this) }
     val travelRouteRepository by lazy { TravelRouteRepository(database.travelRouteDao()) }
 

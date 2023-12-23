@@ -23,4 +23,8 @@
     <string name="address">Địa chỉ</string>
     <string name="history_button">History</string>
     <string name="trackBtnBack">Back</string>
+    <string name="googleLogin">Đăng nhập với Google</string>
+    <string name="guestLogin">Sử dụng tài khoản Offline</string>
+    <string name="or">Hoặc</string>
+    <string name="default_web_client_id">179163510769-dkpjqu56gdsvphlaqj6bnb9fl9vrjrt3.apps.googleusercontent.com</string>
 </resources>
