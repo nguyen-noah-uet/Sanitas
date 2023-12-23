@@ -71,11 +71,12 @@ fun heartBeatEvaluation(signal: DoubleArray, fs: Double):Double {
     }
     val frequencyArr = fft(signal)
     val nSamples = frequencyArr.size
-    val minFrequency = 1.3
+    val minFrequency = 1.32
+
     var index = (minFrequency * nSamples /  1.0 / fs).toInt()
     var indexMax = index
     index += 1
-    while (index < nSamples/2){
+    while (index < (1.45 * nSamples /  1.0 / fs).toInt()){
         if (abs(frequencyArr[index]) > abs(frequencyArr[indexMax])) {
             indexMax = index
         }
