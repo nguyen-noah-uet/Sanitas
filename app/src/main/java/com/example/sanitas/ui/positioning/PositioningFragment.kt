@@ -59,7 +59,7 @@ class PositioningFragment : Fragment() {
 
     private lateinit var trackBtn: Button
 
-    @RequiresApi(Build.VERSION_CODES.O)
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -160,10 +160,12 @@ class PositioningFragment : Fragment() {
         }
     }
 
+
     override fun onSaveInstanceState(outState: Bundle) {
         mapView.onSaveInstanceState(outState)
         super.onSaveInstanceState(outState)
     }
+
 
     override fun onDestroyView() {
         requireActivity().startService(Intent(context, LocationService::class.java).apply {
@@ -175,7 +177,6 @@ class PositioningFragment : Fragment() {
     }
 
 
-    @RequiresApi(Build.VERSION_CODES.O)
     private fun datePicked(year: Int, month: Int, day: Int) {
         state = State.HISTORY
         val date = LocalDateTime.of(year, month, day, 0, 1, 0)
