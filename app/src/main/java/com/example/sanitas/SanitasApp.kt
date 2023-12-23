@@ -62,12 +62,12 @@ class SanitasApp: Application() {
                 val old = stepsRepository.fetchLocalStepsByDate(today)
                 if (old == null) {
                     val newSteps = Steps(
-                        stepsCount = StepMonitor.stepCounter,
+                        stepsCount = SanitasApp.currentSteps,
                         date = today
                     )
                     stepsRepository.insertLocalNewSteps(newSteps)
                 } else {
-                    stepsRepository.updateLocalStepById(StepMonitor.stepCounter + old.stepsCount, old.id)
+                    stepsRepository.updateLocalStepById(SanitasApp.currentSteps + old.stepsCount, old.id)
                 }
             }
         }

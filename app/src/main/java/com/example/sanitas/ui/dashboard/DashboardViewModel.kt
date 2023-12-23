@@ -16,12 +16,12 @@ class DashboardViewModel(repository: StepsRepository) : ViewModel() {
 
 
     private val _steps: MutableLiveData<Int> = MutableLiveData<Int>().apply {
-        value = StepMonitor.stepCounter + repository.oldSteps
+        value = SanitasApp.currentSteps + repository.oldSteps
     }
 
     init {
         StepMonitor.getInstance().setOnStepDetectedCallback {
-            _steps.value = StepMonitor.stepCounter + repository.oldSteps
+            _steps.value = SanitasApp.currentSteps + repository.oldSteps
         }
     }
 
