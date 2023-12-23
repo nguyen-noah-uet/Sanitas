@@ -21,7 +21,13 @@ import java.time.LocalDate
 
 @RequiresApi(Build.VERSION_CODES.O)
 class SanitasApp: Application() {
-
+    companion object {
+        var userDisplayName: String? = null
+        var userEmail: String? = null
+        var userPhotoUrl: String? = null
+        var measuredHeartBeat = 0.0
+        var currentSteps = 0
+    }
     private val database by lazy { LocalAppDatabase.getDatabase(this) }
     val travelRouteRepository by lazy { TravelRouteRepository(database.travelRouteDao()) }
     val stepsRepository by lazy { StepsRepository(database.stepsDao()) }

@@ -6,6 +6,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
+import com.example.sanitas.SanitasApp
 import com.example.sanitas.dataprocessing.StepMonitor
 import com.example.sanitas.repositories.StepsRepository
 

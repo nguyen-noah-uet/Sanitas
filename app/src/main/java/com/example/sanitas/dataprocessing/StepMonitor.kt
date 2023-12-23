@@ -1,12 +1,13 @@
 package com.example.sanitas.dataprocessing
 
+import android.os.Build
+import androidx.annotation.RequiresApi
+import com.example.sanitas.SanitasApp
+
 class StepMonitor private constructor() {
     private object Holder { val INSTANCE = StepMonitor() }
     companion object {
-        var stepCounter = 0
-        private fun increaseStepCounter() {
-            stepCounter++
-        }
+
         @JvmStatic
         fun getInstance(): StepMonitor{
             return Holder.INSTANCE
@@ -73,6 +74,7 @@ class StepMonitor private constructor() {
         }
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     public fun detectStep() : Boolean {
         // Convert raw rotation to degrees
         val roll = rawRoll * 180 / Math.PI
@@ -107,7 +109,7 @@ class StepMonitor private constructor() {
             stepCountFlag = false
             frameCount = 0
             isStep = true
-            increaseStepCounter()
+            SanitasApp.currentSteps += 1
             if(onStepDetected != null) {
                 onStepDetected()
             }

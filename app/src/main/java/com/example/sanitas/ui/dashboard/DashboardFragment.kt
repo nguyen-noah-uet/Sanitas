@@ -6,9 +6,14 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.annotation.RequiresApi
 import androidx.fragment.app.Fragment
+
 import androidx.fragment.app.viewModels
 import com.example.sanitas.SanitasApp
 import com.example.sanitas.databinding.FragmentDashboardBinding
+import androidx.lifecycle.ViewModelProvider
+import com.example.sanitas.dataprocessing.StepMonitor
+import kotlin.math.round
+
 
 
 @RequiresApi(Build.VERSION_CODES.O)
@@ -16,13 +21,12 @@ class DashboardFragment : Fragment() {
 
     private var _binding: FragmentDashboardBinding? = null
     private val binding get() = _binding!!
-
-
     private val dashboardViewModel by viewModels<DashboardViewModel> {
         DashboardViewModelFactory((activity?.application as SanitasApp).stepsRepository)
     }
 
 
+    @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -33,6 +37,7 @@ class DashboardFragment : Fragment() {
         val stepTextView = binding.StepEditText
         dashboardViewModel.steps.observe(viewLifecycleOwner) {
             stepTextView.text = it.toString()
+
         }
 
         return binding.root

@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "179163510769",
+    "project_id": "sanitas-be717",
+    "storage_bucket": "sanitas-be717.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:179163510769:android:bef47054d6120d6fa17650",
+        "android_client_info": {
+          "package_name": "com.example.sanitas"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDNJBo_bOSRotdXermOnLXN0EvCsTnMmKQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

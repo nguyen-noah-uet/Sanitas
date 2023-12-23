@@ -1,6 +1,8 @@
 package com.example.sanitas.ui.positioning
 
+import android.Manifest
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
@@ -9,6 +11,8 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import androidx.annotation.RequiresApi
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import com.example.sanitas.R
@@ -64,7 +68,19 @@ class PositioningFragment : Fragment() {
 
         _binding = FragmentPositioningBinding.inflate(inflater, container, false)
         val root: View = binding.root
-
+        if (!(ContextCompat.checkSelfPermission(
+                requireContext(),
+                Manifest.permission.ACCESS_COARSE_LOCATION
+            ) == PackageManager.PERMISSION_GRANTED
+                    && ContextCompat.checkSelfPermission(
+                requireContext(),
+                Manifest.permission.ACCESS_FINE_LOCATION
+            ) == PackageManager.PERMISSION_GRANTED)
+        ) {
+            ActivityCompat.requestPermissions(
+                requireActivity(), arrayOf(Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION), 0
+            )
+        }
 
         positioningViewModel.startLocation(requireContext(), this.requireActivity())
 
