@@ -1,11 +1,13 @@
 package com.example.sanitas.services
 
+import android.Manifest
 import android.app.NotificationManager
 import android.app.Service
 import android.content.Context
 import android.content.Intent
 import android.os.IBinder
 import android.util.Log
+import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
 import com.example.sanitas.R
 import com.example.sanitas.domain.position.PositioningProvider
@@ -54,6 +56,7 @@ class LocationService: Service() {
     }
 
     private fun start() {
+
         val notification = NotificationCompat.Builder(this, "location")
             .setContentTitle("Tracking location...")
             .setContentText("Your travel route is being tracked. Keep on moving!")

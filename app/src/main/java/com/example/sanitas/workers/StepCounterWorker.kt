@@ -5,9 +5,12 @@ import android.hardware.Sensor
 import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
 import android.hardware.SensorManager
+import android.os.Build
 import android.util.Log
+import androidx.annotation.RequiresApi
 import androidx.work.Worker
 import androidx.work.WorkerParameters
+import com.example.sanitas.SanitasApp
 import com.example.sanitas.dataprocessing.StepMonitor
 
 class StepCounterWorker(context: Context, workerParams: WorkerParameters) :
@@ -32,6 +35,7 @@ class StepCounterWorker(context: Context, workerParams: WorkerParameters) :
         Log.i(TAG, "StepCounterWorker: Registered")
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     override fun onSensorChanged(sensorEvent: SensorEvent) {
         if (sensorEvent.sensor.type == Sensor.TYPE_ACCELEROMETER) {
             val x = sensorEvent.values[0]
@@ -39,7 +43,7 @@ class StepCounterWorker(context: Context, workerParams: WorkerParameters) :
             val z = sensorEvent.values[2]
             stepMonitor.setAccelerometer(x, y, z)
             if (stepMonitor.detectStep()) {
-                Log.i(TAG, String.format("Step %d", StepMonitor.stepCounter))
+                Log.i(TAG, String.format("Step %d", SanitasApp.currentSteps))
             }
         } else if (sensorEvent.sensor.type == Sensor.TYPE_GYROSCOPE) {
             val raw = sensorEvent.values[0]

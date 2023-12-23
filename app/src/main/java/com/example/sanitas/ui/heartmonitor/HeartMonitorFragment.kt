@@ -11,6 +11,7 @@ import android.graphics.ColorMatrixColorFilter
 import android.graphics.Paint
 import android.graphics.Rect
 import android.graphics.YuvImage
+import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -21,6 +22,7 @@ import android.widget.ImageView
 import android.widget.ProgressBar
 import android.widget.TextView
 import android.widget.Toast
+import androidx.annotation.RequiresApi
 import androidx.camera.core.Camera
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.ImageAnalysis
@@ -34,6 +36,7 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ViewModelProvider
 import com.example.sanitas.R
+import com.example.sanitas.SanitasApp
 import com.example.sanitas.databinding.FragmentHeartmonitorBinding
 import com.example.sanitas.dataprocessing.heartBeatEvaluation
 import com.google.common.util.concurrent.ListenableFuture
@@ -56,6 +59,7 @@ class HeartMonitorFragment : Fragment() {
     private lateinit var infoTextView: TextView
     private var isAnalyzing = false
 
+    @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -93,6 +97,7 @@ class HeartMonitorFragment : Fragment() {
         return binding.root
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     private fun configureBinding() {
         previewView = binding.previewView
         startStopButton = binding.startStopButton
@@ -144,6 +149,7 @@ class HeartMonitorFragment : Fragment() {
     ) == PackageManager.PERMISSION_GRANTED
 
     // TODO: after complete analyze image, update UI in here
+    @RequiresApi(Build.VERSION_CODES.O)
     @SuppressLint("SetTextI18n")
     private fun onHeartbeatCalculated(calculatedHeartBeat: Double) {
         imageAnalysis.clearAnalyzer()
@@ -151,7 +157,8 @@ class HeartMonitorFragment : Fragment() {
         isAnalyzing = false
         startStopButton.text = resources.getString(R.string.start)
         progressBar.visibility = View.GONE
-        infoTextView.text = "${resources.getString(R.string.heartbeatMeasure)} ${String.format("%.2f", calculatedHeartBeat)}(bpm)"
+        infoTextView.text = "${resources.getString(R.string.heartbeatMeasure)} ${String.format("%.2f", calculatedHeartBeat)} BPM"
+        SanitasApp.measuredHeartBeat = calculatedHeartBeat
         Toast.makeText(requireActivity(), calculatedHeartBeat.toString(), Toast.LENGTH_SHORT).show()
     }
 
