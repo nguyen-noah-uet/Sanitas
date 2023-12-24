@@ -11,18 +11,18 @@ class StepsRepository(private val stepsDao: StepsDAO) {
 
     var oldSteps = 0
 
-    suspend fun updateLocalStepById(newStepsCount: Int, id: Int) {
-        stepsDao.updateStepById(newStepsCount, id)
+    suspend fun updateLocalStepById(userEmail: String, newStepsCount: Int, id: Int) {
+        stepsDao.updateStepById(userEmail, newStepsCount, id)
     }
 
     suspend fun insertLocalNewSteps(steps: Steps) {
         stepsDao.insertNewStep(steps)
     }
 
-    suspend fun fetchLocalStepsByDate(date: LocalDate) = stepsDao.fetchStepsByDate(date)
+    suspend fun fetchLocalStepsByDate(userEmail: String, date: LocalDate) = stepsDao.fetchStepsByDate(userEmail, date)
 
-    suspend fun fetchOldSteps() {
-        val old = fetchLocalStepsByDate(LocalDate.now())
+    suspend fun fetchOldSteps(userEmail: String) {
+        val old = fetchLocalStepsByDate(userEmail, LocalDate.now())
         oldSteps = old?.stepsCount ?: 0
     }
 }

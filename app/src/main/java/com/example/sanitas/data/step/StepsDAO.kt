@@ -7,12 +7,12 @@ import java.time.LocalDate
 
 @Dao
 interface StepsDAO {
-    @Query("UPDATE step_table SET steps = :newSteps WHERE id = :stepId")
-    suspend fun updateStepById(newSteps: Int, stepId: Int)
+    @Query("UPDATE step_table SET steps = :newSteps WHERE user_email = :email AND id = :stepId")
+    suspend fun updateStepById(email: String, newSteps: Int, stepId: Int)
 
     @Insert
     suspend fun insertNewStep(steps: Steps)
 
-    @Query("SELECT id, steps FROM step_table WHERE date = :thisDate")
-    suspend fun fetchStepsByDate(thisDate: LocalDate): StepTuple?
+    @Query("SELECT id, steps FROM step_table WHERE user_email = :email AND date = :thisDate")
+    suspend fun fetchStepsByDate(email: String, thisDate: LocalDate): StepTuple?
 }

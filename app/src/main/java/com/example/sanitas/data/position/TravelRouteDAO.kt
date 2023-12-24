@@ -8,11 +8,13 @@ import java.time.LocalDateTime
 
 @Dao
 interface TravelRouteDAO {
-    @Query("SELECT lat, long, routeId FROM travel_route WHERE date BETWEEN :dateBegin AND :dateEnd ORDER BY routeId, ordering")
-    suspend fun fetchRouteByDate(dateBegin: LocalDateTime, dateEnd: LocalDateTime): List<CoordinateTuple>
+    @Query("SELECT lat, long, routeId FROM travel_route " +
+            "WHERE date BETWEEN :dateBegin AND :dateEnd AND user_email = :email " +
+            "ORDER BY routeId, ordering")
+    suspend fun fetchRouteByDate(email: String, dateBegin: LocalDateTime, dateEnd: LocalDateTime): List<CoordinateTuple>
 
-    @Query("SELECT MAX(routeId) FROM travel_route")
-    suspend fun getMaxRouteId(): Int?
+    @Query("SELECT MAX(routeId) FROM travel_route WHERE user_email = :email")
+    suspend fun getMaxRouteId(email: String): Int?
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insertTravelRoute(travelRoute: TravelRoute)

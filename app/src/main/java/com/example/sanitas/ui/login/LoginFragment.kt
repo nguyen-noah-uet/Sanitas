@@ -7,7 +7,6 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Button
 import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.navigation.NavController
@@ -24,30 +23,30 @@ import com.google.firebase.auth.AuthResult
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.GoogleAuthProvider
 import com.google.firebase.database.FirebaseDatabase
+import kotlinx.coroutines.runBlocking
 
 @Suppress("DEPRECATION")
 class LoginFragment : Fragment() {
 
     companion object {
-        private const val TAG = "LoginFragment"
         private const val RC_SIGN_IN = 20
     }
 
-    private lateinit var binding: FragmentLoginBinding;
+    private lateinit var binding: FragmentLoginBinding
     private var viewModel: LoginViewModel? = null
     private lateinit var navController: NavController
-    private lateinit var loginBtn: Button
     private lateinit var auth: FirebaseAuth
     private lateinit var database: FirebaseDatabase
     private lateinit var mGoogleSignInClient: GoogleSignInClient
 
+    @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
 
         binding = FragmentLoginBinding.inflate(inflater, container, false)
-        viewModel = ViewModelProvider(this).get(LoginViewModel::class.java)
+        viewModel = ViewModelProvider(this)[LoginViewModel::class.java]
         navController = findNavController()
         auth = FirebaseAuth.getInstance()
         database = FirebaseDatabase.getInstance()
@@ -58,10 +57,17 @@ class LoginFragment : Fragment() {
 
 
         binding.googleLoginButton.setOnClickListener {
-            googleSignIn();
+            googleSignIn()
         }
         binding.guestLoginButton.setOnClickListener {
-            Toast.makeText(activity, "Chào mừng!", Toast.LENGTH_SHORT).show()
+            SanitasApp.userEmail = "local"
+            SanitasApp.currentSteps = 0
+
+            runBlocking {
+                (activity?.application as SanitasApp).stepsRepository.fetchOldSteps(SanitasApp.userEmail!!)
+            }
+
+            Toast.makeText(activity, getString(R.string.welcome_text), Toast.LENGTH_SHORT).show()
             navController.navigate(R.id.action_navigation_login_to_navigation_dashboard)
         }
         return binding.root
@@ -97,13 +103,13 @@ class LoginFragment : Fragment() {
     private fun firebaseAuth(idToken: String?) {
         val credential = GoogleAuthProvider.getCredential(idToken, null)
         auth.signInWithCredential(credential)
-            .addOnCompleteListener() { task: Task<AuthResult?> ->
+            .addOnCompleteListener { task: Task<AuthResult?> ->
                 if (task.isSuccessful) {
                     val user = auth.currentUser
                     val map = HashMap<String, Any?>()
-                    val email = user!!.email;
-                    val name = user.displayName;
-                    val photo = user.photoUrl.toString();
+                    val email = user!!.email
+                    val name = user.displayName
+                    val photo = user.photoUrl.toString()
 
                     map["email"] = email
                     map["name"] = name
@@ -112,7 +118,15 @@ class LoginFragment : Fragment() {
                     SanitasApp.userDisplayName = name
                     SanitasApp.userEmail = email
                     SanitasApp.userPhotoUrl = photo
-                    Toast.makeText(activity, "Chào mừng $name!", Toast.LENGTH_SHORT).show()
+                    SanitasApp.currentSteps = 0
+
+                    runBlocking {
+                        SanitasApp.userEmail?.let {
+                            (activity?.application as SanitasApp).stepsRepository.fetchOldSteps(it)
+                        }
+                    }
+
+                    Toast.makeText(activity, getString(R.string.welcome_text) + " $name", Toast.LENGTH_SHORT).show()
                     navController.navigate(R.id.action_navigation_login_to_navigation_dashboard)
                 } else {
                     Toast.makeText(requireContext(), "Authentication failed.", Toast.LENGTH_SHORT)

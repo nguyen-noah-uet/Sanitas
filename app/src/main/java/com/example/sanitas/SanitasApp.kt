@@ -8,7 +8,6 @@ import android.os.Build
 import androidx.annotation.RequiresApi
 import com.example.sanitas.data.LocalAppDatabase
 import com.example.sanitas.data.step.Steps
-import com.example.sanitas.dataprocessing.StepMonitor
 import com.example.sanitas.repositories.StepsRepository
 import com.example.sanitas.repositories.TravelRouteRepository
 import kotlinx.coroutines.DelicateCoroutinesApi
@@ -16,14 +15,13 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 import java.time.LocalDate
 
 @RequiresApi(Build.VERSION_CODES.O)
 class SanitasApp: Application() {
     companion object {
         var userDisplayName: String? = null
-        var userEmail: String? = null
+        var userEmail: String? = "local"
         var userPhotoUrl: String? = null
         var measuredHeartBeat = 0.0
         var currentSteps = 0
@@ -44,10 +42,6 @@ class SanitasApp: Application() {
             notificationManager.createNotificationChannel(channel)
         }
 
-        runBlocking {
-            stepsRepository.fetchOldSteps()
-        }
-
         startDataInsertCoroutine()
     }
 
@@ -58,16 +52,22 @@ class SanitasApp: Application() {
             val today = LocalDate.now()
             while (true) {
                 delay(5000)
-
-                val old = stepsRepository.fetchLocalStepsByDate(today)
-                if (old == null) {
-                    val newSteps = Steps(
-                        stepsCount = SanitasApp.currentSteps,
-                        date = today
-                    )
-                    stepsRepository.insertLocalNewSteps(newSteps)
-                } else {
-                    stepsRepository.updateLocalStepById(SanitasApp.currentSteps + old.stepsCount, old.id)
+                if (userEmail != null) {
+                    val old = stepsRepository.fetchLocalStepsByDate(userEmail!!, today)
+                    if (old == null) {
+                        val newSteps = Steps(
+                            stepsCount = currentSteps,
+                            date = today,
+                            userEmail = userEmail!!
+                        )
+                        stepsRepository.insertLocalNewSteps(newSteps)
+                    } else {
+                        stepsRepository.updateLocalStepById(
+                            userEmail!!,
+                            currentSteps + stepsRepository.oldSteps,
+                            old.id
+                        )
+                    }
                 }
             }
         }
