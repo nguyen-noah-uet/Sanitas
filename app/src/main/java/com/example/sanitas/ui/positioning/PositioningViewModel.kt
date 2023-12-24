@@ -10,6 +10,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
+import com.example.sanitas.SanitasApp
 import com.example.sanitas.data.position.CoordinateTuple
 import com.example.sanitas.data.position.TravelRoute
 import com.example.sanitas.repositories.TravelRouteRepository
@@ -54,7 +55,7 @@ class PositioningViewModel(private val repository: TravelRouteRepository) : View
         if (isTracking) {
             isTracking = false
 
-            currentRouteId = repository.getLocalMaxRouteId()
+            currentRouteId = repository.getLocalMaxRouteId(SanitasApp.userEmail!!)
             routeOrder = 0
 
             currentRouteId = if (currentRouteId == null) 0 else currentRouteId!! + 1
@@ -67,7 +68,8 @@ class PositioningViewModel(private val repository: TravelRouteRepository) : View
                     ordering = routeOrder,
                     latitude = it.latitude,
                     longitude = it.longitude,
-                    date = LocalDateTime.now()
+                    date = LocalDateTime.now(),
+                    userEmail = SanitasApp.userEmail!!
                 )
                 repository.insertLocalRouteLocation(newTravelRoute)
                 routeOrder++
@@ -85,7 +87,7 @@ class PositioningViewModel(private val repository: TravelRouteRepository) : View
     // Query function to fetch travel route by date from local database
     @RequiresApi(Build.VERSION_CODES.O)
     fun loadHistoryTravelRouteByDate(date: LocalDateTime) = viewModelScope.launch {
-        val fetchedData = repository.fetchLocalTravelRouteByDate(date, date.plusDays(1))
+        val fetchedData = repository.fetchLocalTravelRouteByDate(SanitasApp.userEmail!!, date, date.plusDays(1))
         val routes = fetchedData.groupBy { it.routeId }.map { it.value }
 
         for (route: List<CoordinateTuple> in routes) {

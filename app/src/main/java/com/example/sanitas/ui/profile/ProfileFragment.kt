@@ -18,10 +18,6 @@ import java.net.URL
 
 class ProfileFragment : Fragment() {
 
-    companion object {
-        fun newInstance() = ProfileFragment()
-    }
-
     private lateinit var viewModel: ProfileViewModel
     private lateinit var binding: FragmentProfileBinding
 
@@ -29,13 +25,18 @@ class ProfileFragment : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         binding = FragmentProfileBinding.inflate(inflater, container, false)
         if(SanitasApp.userDisplayName != null) {
-            binding.userDisplayName.text = SanitasApp.userDisplayName;
+            binding.userDisplayName.text = SanitasApp.userDisplayName
         }
-        if (SanitasApp.userEmail != null)
-            binding.userEmail.text = SanitasApp.userEmail;
+        if (SanitasApp.userEmail != null) {
+            if (SanitasApp.userEmail == "local") {
+                binding.userEmail.text = getString(R.string.guest)
+            } else {
+                binding.userEmail.text = SanitasApp.userEmail
+            }
+        }
         if (SanitasApp.userPhotoUrl != null){
             try{
                 val url = URL(SanitasApp.userPhotoUrl)
@@ -53,15 +54,18 @@ class ProfileFragment : Fragment() {
             SanitasApp.currentSteps = 0
             SanitasApp.measuredHeartBeat = 0.0
 
-            Toast.makeText(activity, "Bạn đã đăng xuất", Toast.LENGTH_SHORT).show()
+            Toast.makeText(activity, getString(R.string.logged_out_text), Toast.LENGTH_SHORT).show()
             findNavController().navigate(R.id.action_navigation_profile_to_navigation_login)
         }
         return binding.root
     }
 
+
+
+    @Deprecated("Deprecated in Java")
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
-        viewModel = ViewModelProvider(this).get(ProfileViewModel::class.java)
+        viewModel = ViewModelProvider(this)[ProfileViewModel::class.java]
         // TODO: Use the ViewModel
     }
 
