@@ -36,8 +36,13 @@ class DashboardFragment : Fragment() {
 
         val stepTextView = binding.StepEditText
         dashboardViewModel.steps.observe(viewLifecycleOwner) {
-            stepTextView.text = it.toString()
-
+            stepTextView.text = "Steps: $it"
+        }
+        dashboardViewModel.heartBeat.observe(viewLifecycleOwner) {
+            binding.heartBeatTextView.text = String.format("%.2f BPM", it)
+        }
+        dashboardViewModel.calories.observe(viewLifecycleOwner) {
+            binding.caloriesTextView.text = String.format("%.2f CAL", it)
         }
 
         return binding.root
