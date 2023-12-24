@@ -19,14 +19,26 @@ class DashboardViewModel(repository: StepsRepository) : ViewModel() {
         value = SanitasApp.currentSteps + repository.oldSteps
     }
 
+
     init {
         StepMonitor.getInstance().setOnStepDetectedCallback {
             _steps.value = SanitasApp.currentSteps + repository.oldSteps
+            _calories.value = _steps.value?.times(0.037);
         }
+
     }
 
     val steps: LiveData<Int> = _steps
 
+    private val _calories: MutableLiveData<Double> = MutableLiveData<Double>().apply {
+        value = _steps.value?.times(0.037);
+    }
+    val calories: LiveData<Double> = _calories
+
+    private val _heartBeat: MutableLiveData<Double> = MutableLiveData<Double>().apply {
+        value = SanitasApp.measuredHeartBeat
+    }
+    val heartBeat: LiveData<Double> = _heartBeat
 }
 
 class DashboardViewModelFactory(private val repository: StepsRepository) :

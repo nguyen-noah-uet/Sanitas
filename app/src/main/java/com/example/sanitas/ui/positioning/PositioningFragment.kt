@@ -59,6 +59,10 @@ class PositioningFragment : Fragment() {
 
     private lateinit var trackBtn: Button
 
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -68,6 +72,7 @@ class PositioningFragment : Fragment() {
 
         _binding = FragmentPositioningBinding.inflate(inflater, container, false)
         val root: View = binding.root
+
         if (!(ContextCompat.checkSelfPermission(
                 requireContext(),
                 Manifest.permission.ACCESS_COARSE_LOCATION
@@ -78,11 +83,12 @@ class PositioningFragment : Fragment() {
             ) == PackageManager.PERMISSION_GRANTED)
         ) {
             ActivityCompat.requestPermissions(
-                requireActivity(), arrayOf(Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION), 0
+                requireActivity(), arrayOf(Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION), 100
             )
+        }else{
+            Log.d("Permission", "Permission Granted")
+            positioningViewModel.startLocation(requireContext(), this.requireActivity())
         }
-
-        positioningViewModel.startLocation(requireContext(), this.requireActivity())
 
         positioningViewModel.location.observe(viewLifecycleOwner) {
             updateLocationMarker(it)
